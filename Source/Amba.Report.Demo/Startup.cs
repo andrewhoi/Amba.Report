@@ -27,10 +27,10 @@ namespace Amba.Report.Demo
         public void Configuration(IAppBuilder app)
         {
             var config = new HttpConfiguration();
-            config.Routes.MapHttpRoute(
-                "default",
-                "api/{controller}/{id}");
+
+            app.UseAmbaReport(config);
             app.UseWebApi(config);
+            
 
             app.Run(async (IOwinContext context) =>
             {

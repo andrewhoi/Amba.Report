@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with "Amba.Report" library. If not, see <http://www.gnu.org/licenses/>
 
+using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace Amba.Report.Controllers
@@ -21,7 +23,16 @@ namespace Amba.Report.Controllers
     /// <summary>
     /// ReportController class
     /// </summary>
-    public class ReportController: ApiController
+    public class ReportController : ApiController
     {
+        /// <summary>
+        /// Generate report
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IHttpActionResult> PostReport(string id, JObject reportData)
+        {
+            return await Task.FromResult(Created<JObject>("demouri", reportData));
+        }
     }
 }
