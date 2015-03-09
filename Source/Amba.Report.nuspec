@@ -11,15 +11,19 @@
     <licenseUrl>https://github.com/AmbaCloud/Amba.Report/blob/master/LICENSE</licenseUrl>
     <releaseNotes>
       1.0.0 (March 05, 2015)
-      - Added: 
+      - Added:
     </releaseNotes>
     <summary>Create Excel reports with JSON Api.</summary>
-    <description>Create Excel reports with JSON Api.
+    <description>
+      Create Excel reports with JSON Api.
     </description>
     <copyright>Copyright (c) 2015 Vladimir Kuznetsov</copyright>
     <tags>Spreadsheet OpenXml Report Excel OWIN Katana WebApi</tags>
     <dependencies>
-		<dependency id="Amba.SpreadsheetLight" version="[1.0.0,2.0.0)" />
+      <dependency id="Amba.SpreadsheetLight" version="[1.0.0,2.0.0)" />
     </dependencies>
   </metadata>
+  <!--<files>
+    <file src="web.config.transform" target="content"/>
+  </files>-->
 </package>

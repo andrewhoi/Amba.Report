@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		Amba.Report.licenseheader = Amba.Report.licenseheader
 		Amba.Report.nuspec = Amba.Report.nuspec
+		app.config.install.xdt = app.config.install.xdt
+		app.config.uninstall.xdt = app.config.uninstall.xdt
 		VersionAssemblyInfo.cs = VersionAssemblyInfo.cs
 	EndProjectSection
 EndProject
