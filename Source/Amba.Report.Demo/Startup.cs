@@ -14,23 +14,32 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with "Amba.Report" library. If not, see <http://www.gnu.org/licenses/>
 
+using Microsoft.Owin;
+using Owin;
+using System.Web.Http;
 
-using Microsoft.Owin.Hosting;
-using System;
+[assembly: OwinStartup(typeof(Amba.Report.Demo.Startup))]
+
 namespace Amba.Report.Demo
 {
-    class Program
+    public class Startup
     {
-        static void Main(string[] args)
+        public void Configuration(IAppBuilder app)
         {
-            var type = typeof(Amba.Report.Controllers.ReportController); 
-            Console.WriteLine(type.ToString());
-            using (WebApp.Start<Startup>("http://localhost:5000"))
-            {
-                Console.WriteLine("Server ready...");
-                Console.ReadLine();
-            }
+            var config = new HttpConfiguration();
+            config.Routes.MapHttpRoute(
+                "default",
+                "api/{controller}/{id}");
+            app.UseWebApi(config);
 
+            app.Run(async (IOwinContext context) =>
+            {
+                var bytes = System.Text.Encoding.UTF8
+                    .GetBytes("<h1>Hello, wolrd!</h1>");
+                context.Response.ContentLength = bytes.Length;
+                await context.Response.WriteAsync(bytes);
+            });
         }
     }
+
 }
