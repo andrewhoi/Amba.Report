@@ -20,12 +20,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Amba.Report")]
+[assembly: AssemblyTitle("Amba.Report.Demo")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("AmbaCloud LLC")]
-[assembly: AssemblyProduct("Amba.Report")]
-[assembly: AssemblyCopyright("Copyright 2015, Vladimir Kuznetsov. All rights reserved.")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Amba.Report.Demo")]
+[assembly: AssemblyCopyright("Copyright (c) 2015 Vladimir Kuznetsov")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -35,6 +35,5 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("55d34caa-81a7-4b77-b799-30d599a87f30")]
-
+[assembly: Guid("c5b6a02a-4317-4a12-a679-f7c398b0d2f6")]
 

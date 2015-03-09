@@ -14,16 +14,13 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with "Amba.Report" library. If not, see <http://www.gnu.org/licenses/>
 
-using Xunit;
 
-namespace Amba.Report.Test
+namespace Amba.Report.Demo
 {
-    public class Test
-    {   
-        [Fact]
-        public void Test1()
+    class Program
+    {
+        static void Main(string[] args)
         {
-            Assert.True(true);
         }
     }
 }

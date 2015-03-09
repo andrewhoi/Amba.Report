@@ -27,9 +27,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{CFCC96EC-3
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{08D5F2A1-CC0B-4CD2-84AB-5255878B0C39}"
 	ProjectSection(SolutionItems) = preProject
+		Amba.Report.licenseheader = Amba.Report.licenseheader
 		Amba.Report.nuspec = Amba.Report.nuspec
 		VersionAssemblyInfo.cs = VersionAssemblyInfo.cs
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amba.Report.Demo", "Amba.Report.Demo\Amba.Report.Demo.csproj", "{7089211F-2F77-49E8-BA37-4DD52A644802}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +48,10 @@ Global
 		{A2816512-C29B-45B8-9F07-8F425996B144}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2816512-C29B-45B8-9F07-8F425996B144}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2816512-C29B-45B8-9F07-8F425996B144}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7089211F-2F77-49E8-BA37-4DD52A644802}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7089211F-2F77-49E8-BA37-4DD52A644802}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7089211F-2F77-49E8-BA37-4DD52A644802}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7089211F-2F77-49E8-BA37-4DD52A644802}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
