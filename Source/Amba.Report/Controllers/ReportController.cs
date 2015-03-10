@@ -17,6 +17,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -50,7 +51,58 @@ namespace Amba.Report.Controllers
                     throw new HttpResponseException(HttpStatusCode.NotFound);
                 }
             }
-            return await Task.FromResult(Created<JObject>("demouri", reportData));
+            return await Task.FromResult(GetReport(id, reportData));
+        }
+
+
+        private IHttpActionResult GetReport(string id, JObject reportData)
+        {
+            if (!Config.Templates.ContainsKey(id))
+            {
+                // TODO try to find report in xml-file and register it in Config. Hot adding.
+                return NotFound();
+            }
+            var templateFileName = Path.GetFullPath(Path.Combine(Config.TemplatesPath, Config.Templates[id].Path));
+            if (!File.Exists(templateFileName))
+            {
+                //logger.Warn("Template for report with name='{0}' is not found. {1}", id, templateFileName);
+                return NotFound();
+            }
+
+            var fileName = Path.GetFullPath(Path.Combine(Config.TemplatesPath, Config.Templates[id].DownloadName));
+            var fi = new FileInfo(fileName);
+
+            var tempDirName = Path.GetRandomFileName();
+            var tempDirFullName = Path.Combine(Config.DownloadsPath, tempDirName);
+            try
+            {
+                if (!Directory.Exists(tempDirFullName))
+                {
+                    Directory.CreateDirectory(tempDirFullName);
+                }
+                using (var reporter = new SpreadsheetLightJsonReporter(templateFileName, reportData, Path.Combine(tempDirFullName, fi.Name)))
+                {
+                    reporter.Execute();
+                }
+                // TODO: customize uri for downloads in configSection
+                Uri uri = new Uri("./downloads/" + tempDirName + "/" + fi.Name, UriKind.Relative);
+                return Created<string>(uri.ToString(),
+                    String.Format("File will be deleted in {0} minutes.", Amba.Report.Config.DeleteOlderThanInMinutes));
+            }
+            catch (UnauthorizedAccessException)
+            {
+                throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                {
+                    ReasonPhrase = "Unauthorized Access Exception"
+                });
+            }
+            catch (Exception ex)
+            {
+                throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                {
+                    ReasonPhrase = ex.Message // TODO not visible russian words correctly in sentinel-app
+                });
+            }
         }
 
         /// <summary>

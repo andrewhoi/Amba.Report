@@ -21,6 +21,8 @@ using System.Configuration;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Xml.Linq;
+using System.Xml.XPath;
 namespace Amba.Report
 {
     /// <summary>
@@ -171,7 +173,28 @@ namespace Amba.Report
 
         private static void LoadReportInfo()
         {
-
+            var doc = XDocument.Load(TemplatesDataFile);
+            var items = doc.XPathSelectElements("Reports/Report");
+            var dict = new Dictionary<string, ReportInfo>();
+            foreach (var item in items)
+            {
+                string name = "";
+                if (item.HasAttributes && item.Attribute("name") != null)
+                {
+                    name = item.Attribute("name").Value;
+                    string path = item.Attribute("path").Value;
+                    string downloadName = item.Attribute("downloadName").Value;
+                    // TODO check File.Exists
+                    dict.Add(name,
+                        new Amba.Report.ReportInfo
+                        {
+                            Name = name,
+                            Path = path,
+                            DownloadName = downloadName
+                        });
+                }
+            }
+            Templates = new ReadOnlyDictionary<string, ReportInfo>(dict);
         }
 
         private static string GetExistingFullPath(string path)
