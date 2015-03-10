@@ -100,18 +100,18 @@ Task NuGetPackage -depends ILMerge{
 	Copy-item $src_directory\Amba.Report.nuspec $dist_directory
 	Copy-item $output_directory\Amba.Report.xml $dist_directory\lib\net45\
 	
-	New-Item $dist_directory\content -Type Directory | Out-Null
-	Copy-item $src_directory\app.config.install.xdt $dist_directory\content\
-	Copy-item $src_directory\app.config.uninstall.xdt $dist_directory\content\
+	New-Item $dist_directory\tools -Type Directory | Out-Null
+	Copy-item $src_directory\install.ps1 $dist_directory\tools\
+	Copy-item $src_directory\uninstall.ps1 $dist_directory\tools\
 
 	Exec { .$nuget_path pack $dist_directory\Amba.Report.nuspec -BasePath $dist_directory -o $dist_directory -version $packageVersion }
-	
+
 }
 
 Task ILMerge -Depends Build{
 	Write-Host "Merging is not required." -ForegroundColor Green
 	New-Item $dist_directory\lib\net45 -Type Directory | Out-Null
-	copy-item $output_directory\Amba.Report.dll $dist_directory\lib\net45\
+	Copy-item $output_directory\Amba.Report.dll $dist_directory\lib\net45\
 	Write-Host $nl
 }
 
