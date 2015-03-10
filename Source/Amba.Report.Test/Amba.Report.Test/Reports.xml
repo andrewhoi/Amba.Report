@@ -17,6 +17,7 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with "Amba.Report" library. If not, see <http://www.gnu.org/licenses/>
 -->
+
 <Reports>
   <!--<Report name="Demo1" path="ReportTemplate1.xlsx" downloadName="Demo1_Report.xlsx"/>-->
 </Reports>

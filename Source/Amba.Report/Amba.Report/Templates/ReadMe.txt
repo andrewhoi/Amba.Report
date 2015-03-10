@@ -1,0 +1,1 @@
+﻿Default path for templates

@@ -81,7 +81,7 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Amba.Report\Templates\ReportTemplate1.xlsx">
+    <Content Include="Amba.Report\Templates\ReadMe.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="packages.config" />
