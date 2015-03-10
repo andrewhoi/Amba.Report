@@ -34,16 +34,10 @@ namespace Owin
         public static void UseAmbaReport(this IAppBuilder app, HttpConfiguration config)
         {
             Amba.Report.Config.LoadConfigFromConfiguration();
-            if (Amba.Report.Config.Enabled)
-            {
-                // TODO check section parameters, disable if something wrong
-                config.Routes.MapHttpRoute(
-                   "amba.report",
-                   Amba.Report.Config.Uri,
-                   defaults: new { id = RouteParameter.Optional, controller = "Report" });
-
-
-            }
+            config.Routes.MapHttpRoute(
+               "amba.report",
+               Amba.Report.Config.Uri,
+               defaults: new { id = RouteParameter.Optional, controller = "Report" });
         }
     }
 }

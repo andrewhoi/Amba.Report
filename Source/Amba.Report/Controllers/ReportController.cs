@@ -16,6 +16,9 @@
 
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.ObjectModel;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -33,6 +36,20 @@ namespace Amba.Report.Controllers
         [HttpPost]
         public async Task<IHttpActionResult> PostReport(string id, JObject reportData)
         {
+            if (!Config.Enabled)
+            {
+                if (Config.Errors.Count > 0)
+                {
+                    throw new HttpResponseException(
+                        Request.CreateResponse<string>(
+                            HttpStatusCode.InternalServerError,
+                            "Amba.Report module is disabled due to an error(s) in the configuration."));
+                }
+                else
+                {
+                    throw new HttpResponseException(HttpStatusCode.NotFound);
+                }
+            }
             return await Task.FromResult(Created<JObject>("demouri", reportData));
         }
 
@@ -43,6 +60,10 @@ namespace Amba.Report.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> Get(string operation = "")
         {
+            //throw new HttpResponseException(
+            //            Request.CreateResponse<ReadOnlyCollection<ConfigError>>(
+            //                HttpStatusCode.InternalServerError,
+            //                Config.Errors));
             if (operation.Equals("checkHealth", System.StringComparison.OrdinalIgnoreCase))
             {
                 return await Task.FromResult(Ok<string>("checkHealth!!!"));

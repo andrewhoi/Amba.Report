@@ -51,7 +51,7 @@ namespace Amba.Report
             List<ConfigWarning> warnings = new List<ConfigWarning>();
             List<ConfigError> errors = new List<ConfigError>();
 
-            
+
             var section = ConfigurationManager.GetSection("amba/amba.report") as ConfigSection;
             if (section == null)
             {
@@ -66,7 +66,19 @@ namespace Amba.Report
                 Config.Enabled = false;
                 return;
             }
+            // check uri
+            if (string.IsNullOrWhiteSpace(section.Uri))
+            {
+                errors.Add(new ConfigError("uri",
+                    "Uri is not defined in config section."));
+            }
+            else
+            {
+                Uri = section.Uri;
+            }
+
             // check Templates data file
+            TemplatesDataFile = section.Templates.DataFile;
             if (string.IsNullOrWhiteSpace(TemplatesDataFile))
             {
                 errors.Add(new ConfigError("templates.dataFile",
@@ -78,7 +90,7 @@ namespace Amba.Report
                 if (string.IsNullOrWhiteSpace(fullPath))
                 {
                     errors.Add(new ConfigError("templates.dataFile",
-                        "Templates datafile is not found. " + TemplatesDataFile));
+                        "Templates datafile is not found: \"" + TemplatesDataFile + "\""));
                 }
                 else
                 {
@@ -86,6 +98,7 @@ namespace Amba.Report
                 }
             }
             // check Templates path
+            TemplatesPath = section.Templates.Path;
             if (string.IsNullOrWhiteSpace(TemplatesPath))
             {
                 errors.Add(new ConfigError("templates.path",
@@ -97,7 +110,7 @@ namespace Amba.Report
                 if (string.IsNullOrWhiteSpace(fullPath))
                 {
                     errors.Add(new ConfigError("templates.path",
-                        "Templates path is not found. " + TemplatesPath));
+                        "Templates path is not found: \"" + TemplatesPath + "\""));
                 }
                 else
                 {
@@ -106,6 +119,7 @@ namespace Amba.Report
             }
 
             // check Downloads path
+            DownloadsPath = section.Downloads.Path;
             if (string.IsNullOrWhiteSpace(DownloadsPath))
             {
                 errors.Add(new ConfigError("downloads.path",
@@ -117,7 +131,7 @@ namespace Amba.Report
                 if (string.IsNullOrWhiteSpace(fullPath))
                 {
                     errors.Add(new ConfigError("downloads.path",
-                        "Downloads path is not found. " + DownloadsPath));
+                        "Downloads path is not found: \"" + DownloadsPath + "\""));
                 }
                 else
                 {
@@ -126,6 +140,7 @@ namespace Amba.Report
             }
 
             // check deleteOlderThanInMinutes
+            DeleteOlderThanInMinutes = section.Downloads.DeleteOlderThanInMinutes;
             if (DeleteOlderThanInMinutes <= 0)
             {
                 DeleteOlderThanInMinutes = DELETE_OLDER_THAN_IN_MINUTES;
@@ -134,13 +149,14 @@ namespace Amba.Report
             }
 
             // check deleteFrequencyInMinutes
+            DeleteFrequencyInMinutes = section.Downloads.DeleteFrequencyInMinutes;
             if (DeleteFrequencyInMinutes <= 0)
             {
                 DeleteFrequencyInMinutes = DELETE_FREQUENCY_IN_MINUTES;
                 warnings.Add(new ConfigWarning("downloads.deleteFrequencyInMinutes",
                     "downloads.deleteFrequencyInMinutes was less than one and set to " + DeleteFrequencyInMinutes.ToString()));
             }
-            Enabled = Errors.Count > 0;
+
 
             LoadReportInfo();
 
@@ -148,13 +164,14 @@ namespace Amba.Report
             Warnings = new ReadOnlyCollection<ConfigWarning>(warnings);
             Errors = new ReadOnlyCollection<ConfigError>(errors);
 
+            Enabled = Errors.Count == 0;
 
             if (gotLock) sl.Exit();
         }
 
         private static void LoadReportInfo()
         {
-            
+
         }
 
         private static string GetExistingFullPath(string path)
@@ -177,11 +194,11 @@ namespace Amba.Report
             return String.Empty;
         }
 
-      
+
         /// <summary>
         /// Enable-disable Amba.Report module
         /// </summary>
-        public static bool Enabled  { get; private set; }
+        public static bool Enabled { get; private set; }
 
         /// <summary>
         /// Uri for api address, default value is 'api/report/{id}'
