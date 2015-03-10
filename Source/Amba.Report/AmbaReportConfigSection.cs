@@ -24,7 +24,6 @@ namespace Amba.Report
     /// </summary>
     public class ConfigSection : ConfigurationSection
     {
-        
 
         /// <summary>
         /// Determine if this api enabled
@@ -150,7 +149,7 @@ namespace Amba.Report
         /// <summary>
         /// Interval for save file without deleting in minutes
         /// </summary>
-        [ConfigurationProperty("deleteOlderThanInMinutes", DefaultValue = "60", IsRequired = false)]
+        [ConfigurationProperty("deleteOlderThanInMinutes", DefaultValue = Config.DELETE_OLDER_THAN_IN_MINUTES, IsRequired = false)]
         [IntegerValidator(ExcludeRange = false, MaxValue = Int32.MaxValue, MinValue = 1)]
         public int DeleteOlderThanInMinutes
         {
@@ -162,7 +161,7 @@ namespace Amba.Report
         /// <summary>
         /// Delete operation frequency in minutes
         /// </summary>
-        [ConfigurationProperty("deleteFrequencyInMinutes", DefaultValue = "1", IsRequired = false)]
+        [ConfigurationProperty("deleteFrequencyInMinutes", DefaultValue = Config.DELETE_FREQUENCY_IN_MINUTES, IsRequired = false)]
         [IntegerValidator(ExcludeRange = false, MaxValue = Int32.MaxValue, MinValue = 1)]
         public int DeleteFrequencyInMinutes
         {

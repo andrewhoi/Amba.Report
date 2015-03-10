@@ -68,6 +68,7 @@
     </Compile>
     <Compile Include="AmbaReportConfigSection.cs" />
     <Compile Include="AmbaReportAppBuilderExtension.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

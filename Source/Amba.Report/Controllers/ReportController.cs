@@ -15,6 +15,7 @@
 // along with "Amba.Report" library. If not, see <http://www.gnu.org/licenses/>
 
 using Newtonsoft.Json.Linq;
+using System;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -33,6 +34,20 @@ namespace Amba.Report.Controllers
         public async Task<IHttpActionResult> PostReport(string id, JObject reportData)
         {
             return await Task.FromResult(Created<JObject>("demouri", reportData));
+        }
+
+        /// <summary>
+        /// Get
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IHttpActionResult> Get(string operation = "")
+        {
+            if (operation.Equals("checkHealth", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return await Task.FromResult(Ok<string>("checkHealth!!!"));
+            }
+            return await Task.FromResult(Ok<string>(String.Format("operation=", operation)));
         }
     }
 }
