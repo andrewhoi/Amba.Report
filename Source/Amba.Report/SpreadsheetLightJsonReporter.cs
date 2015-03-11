@@ -55,69 +55,13 @@ namespace Amba.Report
             using (var doc = new SLDocument(templateName))
             {
                 var activeSheet = doc.GetCurrentWorksheetName();
+
                 FillReportWithData(doc, jsonData);
-                DeleteRowsForArrays(doc, jsonData);
-                ClearNamedRanges(doc);
+                //DeleteRowsForArrays(doc, jsonData);
+                //ClearNamedRanges(doc);
+
                 doc.SelectWorksheet(activeSheet);
                 doc.SaveAs(outputFile);
-            }
-        }
-
-        private void ClearNamedRanges(SLDocument doc)
-        {
-            foreach (var item in doc.GetDefinedNames(false))
-            {
-                doc.DeleteDefinedName(item.Name);
-            }
-        }
-
-        private void DeleteRowsForArrays(SLDocument doc, JObject json, string prefix = "")
-        {
-            arrays = new HashSet<string>();
-            GetAllArray(json);
-            foreach (var item in arrays)
-            {
-                if (doc.HasDefinedName((string)item))
-                {
-                    var namedRangeText = doc.GetDefinedNameText((string)item);
-                    var addrArray = namedRangeText.Split(',');
-                    var address = addrArray[0]; // only first range
-                    var sheet = address.Substring(0, address.IndexOf('!'));
-                    if (!doc.SelectWorksheet(sheet))
-                    {
-                        continue;
-                    }
-
-                    var range = address.Substring(address.IndexOf('!') + 1).Replace("$", "");
-                    var cells = range.Split(':');
-                    var rowBegin = Convert.ToInt32(cells[0]);
-                    var rowEnd = Convert.ToInt32(cells[1]);
-                    var rowCount = rowEnd - rowBegin + 1;
-                    doc.DeleteRow(rowBegin, rowCount);
-                    doc.DeleteDefinedName((string)item);
-                }
-            }
-        }
-        private HashSet<string> arrays;
-        private void GetAllArray(JObject json, string prefix = "")
-        {
-            foreach (var p in json)
-            {
-                if (p.Value.Type == JTokenType.Object)
-                {
-                    GetAllArray((JObject)p.Value);
-                }
-                if (p.Value.Type == JTokenType.Array)
-                {
-
-                    if (arrays.Contains(prefix)) continue;
-
-                    arrays.Add(prefix + p.Key);
-                    foreach (var row in (JArray)p.Value)
-                    {
-                        GetAllArray((JObject)row, prefix + p.Key + ".");
-                    }
-                }
             }
         }
 
@@ -130,7 +74,7 @@ namespace Amba.Report
                 if (property.Value.Type == JTokenType.Array)
                 {
                     // Special method
-                    currentRowToInsert = 0;
+                    //    currentRowToInsert = 0;
                     FillArray(doc, namedRangeName, (JArray)property.Value);
                     continue;
                 }
@@ -163,7 +107,7 @@ namespace Amba.Report
             }
         }
 
-        private int currentRowToInsert;
+
         private void FillArray(SLDocument doc, string namedRangeName, JArray jArray)
         {
             var namedRangeText = doc.GetDefinedNameText(namedRangeName);
@@ -176,74 +120,230 @@ namespace Amba.Report
             {
                 return;
             }
-            var range = address.Substring(address.IndexOf('!') + 1).Replace("$", "");
-            var cells = range.Split(':');
-            var rowBegin = Convert.ToInt32(cells[0]);
-            var rowEnd = Convert.ToInt32(cells[1]);
-            var rowCount = rowEnd - rowBegin + 1;
-            if (currentRowToInsert == 0)
-            {
-                currentRowToInsert = rowEnd + 1;
-            }
+
+            int rowBegin, rowEnd, rowCount;
+
+            var result = SLDocument.WhatIsRowStartRowEnd(address, out rowBegin, out rowEnd);
+            if (!result) return;
+            rowCount = rowEnd - rowBegin + 1;
+
+            //if (currentRowToInsert == 0)
+            //{
+            //    currentRowToInsert = rowEnd + 1;
+            //}
+            int offset = 0;
             foreach (var row in jArray)
             {
 
-                doc.InsertRow(currentRowToInsert, rowCount);
-                // cause after inserting row move down, when row template below row of inserting
-                var fixOffset = rowBegin >= currentRowToInsert ? rowCount : 0;
-                rowBegin += fixOffset;
-                rowEnd += fixOffset;
-                doc.CopyRow(rowBegin, rowEnd, currentRowToInsert);
-                var rowOffset = currentRowToInsert - rowBegin;
+                doc.InsertRow(rowEnd + 1 + offset, rowCount);
+                doc.CopyRow(rowBegin, rowEnd, rowEnd + 1);
 
-                currentRowToInsert += rowCount;
-                if (row.GetType() == typeof(JObject))
-                {
-                    FillRangeWithData(doc, (JObject)row, namedRangeName + ".", rowOffset);
-                }
+
+                //    // cause after inserting row move down, when row template below row of inserting
+                //    var fixOffset = rowBegin >= currentRowToInsert ? rowCount : 0;
+                //    rowBegin += fixOffset;
+                //    rowEnd += fixOffset;
+                //    doc.CopyRow(rowBegin, rowEnd, currentRowToInsert);
+                //    var rowOffset = currentRowToInsert - rowBegin;
+
+                //    currentRowToInsert += rowCount;
+                //    if (row.GetType() == typeof(JObject))
+                //    {
+                //        FillRangeWithData(doc, (JObject)row, namedRangeName + ".", rowOffset);
+                //    }
             }
 
         }
 
-        private void FillRangeWithData(SLDocument doc, JObject jObject, string prefix, int rowOffset)
-        {
-            foreach (var property in jObject)
-            {
-                var namedRangeName = prefix + property.Key;
-                if (property.Value.Type == JTokenType.Array)
-                {
-                    // nested arrays
-                    FillArray(doc, namedRangeName, (JArray)property.Value);
-                    continue;
-                }
-                if (property.Value.Type == JTokenType.Object)
-                {
-                    FillRangeWithData(doc, (JObject)property.Value, namedRangeName + ".", rowOffset);
-                    continue;
-                }
 
-                switch (property.Value.Type)
-                {
-                    case JTokenType.String:
-                        doc.SetDefinedNameValue<string>(namedRangeName, property.Value.Value<string>(), rowOffset);
-                        break;
-                    case JTokenType.Date:
-                        doc.SetDefinedNameValue<DateTime>(namedRangeName, property.Value.Value<DateTime>(), rowOffset);
-                        break;
-                    case JTokenType.Integer:
-                        doc.SetDefinedNameValue<int>(namedRangeName, property.Value.Value<int>(), rowOffset);
-                        break;
-                    case JTokenType.Float:
-                        doc.SetDefinedNameValue<float>(namedRangeName, property.Value.Value<float>(), rowOffset);
-                        break;
-                    case JTokenType.Boolean:
-                        doc.SetDefinedNameValue<bool>(namedRangeName, property.Value.Value<bool>(), rowOffset);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
+
+
+
+
+
+
+
+        //private void ClearNamedRanges(SLDocument doc)
+        //{
+        //    foreach (var item in doc.GetDefinedNames(false))
+        //    {
+        //        doc.DeleteDefinedName(item.Name);
+        //    }
+        //}
+
+        //private void DeleteRowsForArrays(SLDocument doc, JObject json, string prefix = "")
+        //{
+        //    arrays = new HashSet<string>();
+        //    GetAllArray(json);
+        //    foreach (var item in arrays)
+        //    {
+        //        if (doc.HasDefinedName((string)item))
+        //        {
+        //            var namedRangeText = doc.GetDefinedNameText((string)item);
+        //            var addrArray = namedRangeText.Split(',');
+        //            var address = addrArray[0]; // only first range
+        //            var sheet = address.Substring(0, address.IndexOf('!'));
+        //            if (!doc.SelectWorksheet(sheet))
+        //            {
+        //                continue;
+        //            }
+
+        //            var range = address.Substring(address.IndexOf('!') + 1).Replace("$", "");
+        //            var cells = range.Split(':');
+        //            var rowBegin = Convert.ToInt32(cells[0]);
+        //            var rowEnd = Convert.ToInt32(cells[1]);
+        //            var rowCount = rowEnd - rowBegin + 1;
+        //            doc.DeleteRow(rowBegin, rowCount);
+        //            doc.DeleteDefinedName((string)item);
+        //        }
+        //    }
+        //}
+        //private HashSet<string> arrays;
+        //private void GetAllArray(JObject json, string prefix = "")
+        //{
+        //    foreach (var p in json)
+        //    {
+        //        if (p.Value.Type == JTokenType.Object)
+        //        {
+        //            GetAllArray((JObject)p.Value);
+        //        }
+        //        if (p.Value.Type == JTokenType.Array)
+        //        {
+
+        //            if (arrays.Contains(prefix)) continue;
+
+        //            arrays.Add(prefix + p.Key);
+        //            foreach (var row in (JArray)p.Value)
+        //            {
+        //                GetAllArray((JObject)row, prefix + p.Key + ".");
+        //            }
+        //        }
+        //    }
+        //}
+
+
+        //private void FillReportWithData(SLDocument doc, JObject json, string prefix = "")
+        //{
+        //    foreach (var property in json)
+        //    {
+        //        var namedRangeName = prefix + property.Key;
+        //        if (property.Value.Type == JTokenType.Array)
+        //        {
+        //            // Special method
+        //            currentRowToInsert = 0;
+        //            FillArray(doc, namedRangeName, (JArray)property.Value);
+        //            continue;
+        //        }
+        //        if (property.Value.Type == JTokenType.Object)
+        //        {
+        //            FillReportWithData(doc, (JObject)property.Value, namedRangeName + ".");
+        //            continue;
+        //        }
+
+        //        switch (property.Value.Type)
+        //        {
+        //            case JTokenType.String:
+        //                doc.SetDefinedNameValue<string>(namedRangeName, property.Value.Value<string>());
+        //                break;
+        //            case JTokenType.Date:
+        //                doc.SetDefinedNameValue<DateTime>(namedRangeName, property.Value.Value<DateTime>());
+        //                break;
+        //            case JTokenType.Integer:
+        //                doc.SetDefinedNameValue<int>(namedRangeName, property.Value.Value<int>());
+        //                break;
+        //            case JTokenType.Float:
+        //                doc.SetDefinedNameValue<float>(namedRangeName, property.Value.Value<float>());
+        //                break;
+        //            case JTokenType.Boolean:
+        //                doc.SetDefinedNameValue<bool>(namedRangeName, property.Value.Value<bool>());
+        //                break;
+        //            default:
+        //                break;
+        //        }
+        //    }
+        //}
+
+        //private int currentRowToInsert;
+        //private void FillArray(SLDocument doc, string namedRangeName, JArray jArray)
+        //{
+        //    var namedRangeText = doc.GetDefinedNameText(namedRangeName);
+        //    if (string.IsNullOrWhiteSpace(namedRangeText)) return;
+        //    // take only first range (must be like 'Sheet1!$1:$2')
+        //    var addrArray = namedRangeText.Split(',');
+        //    var address = addrArray[0];
+        //    var sheet = address.Substring(0, address.IndexOf('!'));
+        //    if (!doc.SelectWorksheet(sheet))
+        //    {
+        //        return;
+        //    }
+        //    var range = address.Substring(address.IndexOf('!') + 1).Replace("$", "");
+        //    var cells = range.Split(':');
+        //    var rowBegin = Convert.ToInt32(cells[0]);
+        //    var rowEnd = Convert.ToInt32(cells[1]);
+        //    var rowCount = rowEnd - rowBegin + 1;
+        //    if (currentRowToInsert == 0)
+        //    {
+        //        currentRowToInsert = rowEnd + 1;
+        //    }
+        //    foreach (var row in jArray)
+        //    {
+
+        //        doc.InsertRow(currentRowToInsert, rowCount);
+        //        // cause after inserting row move down, when row template below row of inserting
+        //        var fixOffset = rowBegin >= currentRowToInsert ? rowCount : 0;
+        //        rowBegin += fixOffset;
+        //        rowEnd += fixOffset;
+        //        doc.CopyRow(rowBegin, rowEnd, currentRowToInsert);
+        //        var rowOffset = currentRowToInsert - rowBegin;
+
+        //        currentRowToInsert += rowCount;
+        //        if (row.GetType() == typeof(JObject))
+        //        {
+        //            FillRangeWithData(doc, (JObject)row, namedRangeName + ".", rowOffset);
+        //        }
+        //    }
+
+        //}
+
+        //private void FillRangeWithData(SLDocument doc, JObject jObject, string prefix, int rowOffset)
+        //{
+        //    foreach (var property in jObject)
+        //    {
+        //        var namedRangeName = prefix + property.Key;
+        //        if (property.Value.Type == JTokenType.Array)
+        //        {
+        //            // nested arrays
+        //            FillArray(doc, namedRangeName, (JArray)property.Value);
+        //            continue;
+        //        }
+        //        if (property.Value.Type == JTokenType.Object)
+        //        {
+        //            FillRangeWithData(doc, (JObject)property.Value, namedRangeName + ".", rowOffset);
+        //            continue;
+        //        }
+
+        //        switch (property.Value.Type)
+        //        {
+        //            case JTokenType.String:
+        //                doc.SetDefinedNameValue<string>(namedRangeName, property.Value.Value<string>(), rowOffset);
+        //                break;
+        //            case JTokenType.Date:
+        //                doc.SetDefinedNameValue<DateTime>(namedRangeName, property.Value.Value<DateTime>(), rowOffset);
+        //                break;
+        //            case JTokenType.Integer:
+        //                doc.SetDefinedNameValue<int>(namedRangeName, property.Value.Value<int>(), rowOffset);
+        //                break;
+        //            case JTokenType.Float:
+        //                doc.SetDefinedNameValue<float>(namedRangeName, property.Value.Value<float>(), rowOffset);
+        //                break;
+        //            case JTokenType.Boolean:
+        //                doc.SetDefinedNameValue<bool>(namedRangeName, property.Value.Value<bool>(), rowOffset);
+        //                break;
+        //            default:
+        //                break;
+        //        }
+        //    }
+        //}
 
 
         /// <summary>

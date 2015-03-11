@@ -34,8 +34,9 @@
     <DocumentationFile>bin\Release\Amba.Report.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Amba.SpreadsheetLight">
-      <HintPath>..\packages\Amba.SpreadsheetLight.1.0.0\lib\net40\Amba.SpreadsheetLight.dll</HintPath>
+    <Reference Include="Amba.SpreadsheetLight, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Amba.SpreadsheetLight.1.1.0\lib\net40\Amba.SpreadsheetLight.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

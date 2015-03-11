@@ -14,8 +14,11 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with "Amba.Report" library. If not, see <http://www.gnu.org/licenses/>
 
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Diagnostics;
+using System.Dynamic;
 using System.IO;
 using Xunit;
 
@@ -23,6 +26,77 @@ namespace Amba.Report.Test
 {
     public class Reporter
     {
+        [Fact]
+        public void Test2()
+        {
+            var json = JsonConvert.SerializeObject(new { typ = "photos" },
+                 new JsonSerializerSettings() { Formatting = Newtonsoft.Json.Formatting.None });
+
+            JObject out1 = JObject.FromObject(new
+            {
+                typ = "photos"
+            });
+
+            dynamic employee = new ExpandoObject();
+            employee.Name = "John Smith";
+            employee.Age = 33;
+            employee.Rows = new[] { new { name = "1" } };
+
+            JObject out2 = JObject.FromObject(employee);
+            JObject out3 = JObject.FromObject(json2);
+        }
+        dynamic json2 = new
+        {
+            Num = "12345-678",
+            Date = new DateTime(2015, 3, 22),
+            Org = new { Name = "Customer's name" },
+            Group1 = new[] { 
+                new { 
+                    Item = "Group #1",
+                    Group2 = new[] {
+                        new { 
+                            Name = "Group #1 Subgroup #1",
+                            Details = new[]{
+                                new { Item = "Item #1", Qnt=12.0, Price = 50.1 },
+                                new { Item = "Item #2", Qnt=11.0, Price = 77.0 },
+                                new { Item = "Item #3", Qnt=2.5, Price = 65.15 },
+                            }
+                        },
+                        new { 
+                            Name = "Group #1 Subgroup #2",
+                            Details = new[]{
+                                new { Item = "Item #1", Qnt=12.0, Price = 50.1 },
+                                new { Item = "Item #2", Qnt=11.0, Price = 77.0 },
+                                new { Item = "Item #3", Qnt=2.5, Price = 65.15 },
+                            }
+                        }
+                    }   
+                },
+                new { 
+                    Item = "Group #2",
+                    Group2 = new[] {
+                        new { 
+                            Name = "Group #2 Subgroup #1",
+                            Details = new[]{
+                                new { Item = "Item #1", Qnt=12.0, Price = 50.1 },
+                                new { Item = "Item #2", Qnt=11.0, Price = 77.0 },
+                                new { Item = "Item #3", Qnt=2.5, Price = 65.15 },
+                            }
+                        },
+                        new { 
+                            Name = "Group #2 Subgroup #2",
+                            Details = new[]{
+                                new { Item = "Item #1", Qnt=12.0, Price = 50.1 },
+                                new { Item = "Item #2", Qnt=11.0, Price = 77.0 },
+                                new { Item = "Item #3", Qnt=2.5, Price = 65.15 },
+                            }
+                        }
+                    }   
+                }
+            }
+        };
+
+
         [Fact]
         public void Test1()
         {
@@ -40,6 +114,7 @@ namespace Amba.Report.Test
             Process.Start(tempFile);
             // TODO: check final report, then delete it
             //File.Delete(tempFile);
+
         }
         private string GetTempFileName()
         {
@@ -68,6 +143,47 @@ namespace Amba.Report.Test
         ]}
     ]
 }");
+
+        private JObject jsonData2 = JObject.Parse(@"
+{   'Num': '12345678-15',
+    'Date': '2015-05-22T21:01:02',
+    'Org': { 'Name': 'Customer\'s name here' },
+    'Items': [
+        { 'Item': 'Item #1', 'Qnt': 12.5, 'Price': 20.0 },
+        { 'Item': 'Item #2', 'Qnt': 1, 'Price': 55.65 },
+        { 'Item': 'Item #3', 'Qnt': 2.0, 'Price': 50.1 }
+    ],
+    'Group1': [{
+        'Item' : 'Group #1',
+        'Group2' : [{ 
+            'Name' : 'Group #1 Subgroup #1',
+            'Details': [
+                { 'Item': 'Item #1', 'Qnt': 12.5, 'Price': 20.0 },
+                { 'Item': 'Item #2', 'Qnt': 1, 'Price': 55.65 },
+                { 'Item': 'Item #3', 'Qnt': 2.0, 'Price': 50.1 }    
+            ]},
+            { 
+            'Name' : 'Group #1 Subgroup #2',
+            'Details': [
+                { 'Item': 'Item #1', 'Qnt': 12.5, 'Price': 20.0 },
+                { 'Item': 'Item #2', 'Qnt': 1, 'Price': 55.65 },
+                { 'Item': 'Item #3', 'Qnt': 2.0, 'Price': 50.1 }    
+            ]}
+        ]},
+        
+        {
+        'Item' : 'Group #2',
+        'Group2' : [{ 
+            'Name' : 'Group #2 Subgroup #1',
+            'Details': [
+                { 'Item': 'Item #1', 'Qnt': 12.5, 'Price': 20.0 },
+                { 'Item': 'Item #2', 'Qnt': 1, 'Price': 55.65 },
+                { 'Item': 'Item #3', 'Qnt': 2.0, 'Price': 50.1 }    
+            ]
+            },
+        ]}    
+    ]
+}");
     }
 }
-    
+
