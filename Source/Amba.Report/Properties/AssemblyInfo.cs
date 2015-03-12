@@ -15,6 +15,7 @@
 // along with "Amba.Report" library. If not, see <http://www.gnu.org/licenses/>
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -37,4 +38,6 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("55d34caa-81a7-4b77-b799-30d599a87f30")]
 
+
+[assembly: InternalsVisibleTo("Amba.Report.Test")]
 

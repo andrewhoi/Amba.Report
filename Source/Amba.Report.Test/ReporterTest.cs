@@ -24,28 +24,34 @@ using Xunit;
 
 namespace Amba.Report.Test
 {
-    public class Reporter
+    public class ReporterTest
     {
+
+
         [Fact]
         public void Test2()
         {
-            var json = JsonConvert.SerializeObject(new { typ = "photos" },
-                 new JsonSerializerSettings() { Formatting = Newtonsoft.Json.Formatting.None });
+            //var json = JsonConvert.SerializeObject(new { typ = "photos" },
+            //     new JsonSerializerSettings() { Formatting = Newtonsoft.Json.Formatting.None });
 
-            JObject out1 = JObject.FromObject(new
-            {
-                typ = "photos"
-            });
+            // assign
+            JObject json = JObject.FromObject(jsonData3);
+            var tempFile = GetTempFileName();
+            var reporter = new SpreadsheetLightJsonReporter(
+                "Amba.Report.Test\\Templates\\ReportTemplate2.xlsx",
+                json,
+                tempFile);
+            // Act
+            reporter.Execute();
+            // Assert
+            Assert.True(File.Exists(tempFile));
+            Process.Start(tempFile);
 
-            dynamic employee = new ExpandoObject();
-            employee.Name = "John Smith";
-            employee.Age = 33;
-            employee.Rows = new[] { new { name = "1" } };
-
-            JObject out2 = JObject.FromObject(employee);
-            JObject out3 = JObject.FromObject(json2);
         }
-        dynamic json2 = new
+
+        #region Test data
+
+        dynamic jsonData3 = new
         {
             Num = "12345-678",
             Date = new DateTime(2015, 3, 22),
@@ -96,6 +102,8 @@ namespace Amba.Report.Test
             }
         };
 
+        #endregion
+
 
         [Fact]
         public void Test1()
@@ -111,7 +119,7 @@ namespace Amba.Report.Test
             reporter.Execute();
             // Assert
             Assert.True(File.Exists(tempFile));
-            Process.Start(tempFile);
+            //Process.Start(tempFile);
             // TODO: check final report, then delete it
             //File.Delete(tempFile);
 
