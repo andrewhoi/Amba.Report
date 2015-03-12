@@ -56,9 +56,7 @@ namespace Amba.Report
             {
                 var activeSheet = doc.GetCurrentWorksheetName();
 
-                //FillReportWithData(doc, jsonData);
-                //DeleteRowsForArrays(doc, jsonData);
-                //ClearNamedRanges(doc);
+                FillReportWithData(doc, jsonData);
 
                 doc.SelectWorksheet(activeSheet);
                 doc.SaveAs(outputFile);
@@ -105,17 +103,54 @@ namespace Amba.Report
                 }
             }
         }
-
-        private void FillArray(SLDocument doc, string namedRangeName, JArray jArray)
+        // when first level array found
+        private void FillArray(SLDocument doc, string propertyName, JArray jArray)
         {
-           
+            var structure = new ArrayPrintStructure();
+            FillPrintedStructure(structure, doc, propertyName, jArray);
+            if (structure == null) return;
+
+            // TODO validate structure
+
         }
-        
-        private PrintStructure GetPrintedStructure(SLDocument doc, JObject json)
-        {
-            var result = new PrintStructure();
 
-            return result;
+        private ArrayPrintStructure FillPrintedStructure(ArrayPrintStructure structure, SLDocument doc, string propertyName, JArray jArray)
+        {
+            if (!doc.HasDefinedName(propertyName)) return structure;
+
+
+            var ranges = doc.GetDefinedNameText(propertyName).Split(',');
+            if (!(1 <= ranges.Length && ranges.Length <= 2))
+            {
+                return structure; // TODO: add to log: ranges more than 2, we don't know what todo, add log to new sheet
+            }
+            structure.Enabled = true;
+            structure.Path = propertyName;
+            // Header
+            structure.Header.Enabled = true;
+            structure.Header.Range = ranges[0];
+            if (ranges.Length == 2)
+            {
+                structure.Footer.Enabled = true;
+                structure.Footer.Range = ranges[1];
+            }
+
+            foreach (var row in jArray)
+            {
+                foreach (var item in (JObject)row)
+                {
+                    if (item.Value.Type == JTokenType.Array)
+                    {
+                        if (!structure.Children.ContainsKey(item.Key))
+                        {
+                            var child = new ArrayPrintStructure();
+                            FillPrintedStructure(child, doc, propertyName + "." + item.Key, (JArray)item.Value);
+                            structure.Children.Add(item.Key, child);
+                        }
+                    }
+                }
+            }
+            return structure;
         }
 
 
@@ -127,16 +162,66 @@ namespace Amba.Report
         }
     }
 
-    internal class PrintStructure
+    internal class ArrayPrintStructure
     {
-        public TemplateInfo Header { get; set; }
-        public TemplateInfo[] Rows { get; set; }
-        public TemplateInfo Footer { get; set; }
+        public ArrayPrintStructure()
+        {
+            Header = new TemplateInfo();
+            Footer = new TemplateInfo();
+            Enabled = false;
+            Children = new Dictionary<string, ArrayPrintStructure>();
+        }
+        public bool Enabled { get; set; }
+        public string Path { get; set; }
+        public TemplateInfo Header { get; private set; }
+        public TemplateInfo Footer { get; private set; }
+
+        public IDictionary<string, ArrayPrintStructure> Children { get; set; }
     }
     internal class TemplateInfo
     {
-        public string Name { get; set; }
-        public string Range { get; set; }
-        public string PathToData { get; set; }
+        public TemplateInfo()
+        {
+            Enabled = false;
+            SheetName = _Range = String.Empty;
+            RowStart = RowEnd = RowCount = 0;
+        }
+        public bool Enabled { get; set; }
+        private string _Range;
+
+        public string Range
+        {
+            get
+            {
+                return _Range;
+            }
+            set
+            {
+                if (_Range.Equals(value)) return;
+                _Range = value;
+                int r1, r2;
+                if (SLDocument.WhatIsRowStartRowEnd(_Range, out r1, out r2))
+                {
+                    RowStart = r1;
+                    RowEnd = r2;
+                    RowCount = r2 - r1 + 1;
+                    SheetName = _Range.Substring(0, _Range.IndexOf('!'));
+                }
+                else
+                {
+                    RowCount = 0;
+                    SheetName = String.Empty;
+                }
+            }
+        }
+        public string SheetName { get; private set; }
+        public int RowStart { get; private set; }
+        public int RowEnd { get; private set; }
+        public int RowCount { get; private set; }
+
+        public override string ToString()
+        {
+            return Range;
+        }
     }
 }

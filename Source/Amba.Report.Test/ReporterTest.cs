@@ -26,172 +26,67 @@ namespace Amba.Report.Test
 {
     public class ReporterTest
     {
-
-
-        [Fact]
-        public void Test2()
-        {
-            //var json = JsonConvert.SerializeObject(new { typ = "photos" },
-            //     new JsonSerializerSettings() { Formatting = Newtonsoft.Json.Formatting.None });
-
-            // assign
-            JObject json = JObject.FromObject(jsonData3);
-            var tempFile = GetTempFileName();
-            var reporter = new SpreadsheetLightJsonReporter(
-                "Amba.Report.Test\\Templates\\ReportTemplate2.xlsx",
-                json,
-                tempFile);
-            // Act
-            reporter.Execute();
-            // Assert
-            Assert.True(File.Exists(tempFile));
-            Process.Start(tempFile);
-
-        }
-
         #region Test data
 
-        dynamic jsonData3 = new
-        {
-            Num = "12345-678",
-            Date = new DateTime(2015, 3, 22),
-            Org = new { Name = "Customer's name" },
-            Group1 = new[] { 
+        dynamic jsonOrders = new {
+            Date = new DateTime(2015,3,22),
+            Company = new { Name = "Example company", Address = "Paris" },
+            PrintedAt = DateTime.Now,
+            Categories = new[]{
                 new { 
-                    Item = "Group #1",
-                    Group2 = new[] {
+                    Name = "Foods", 
+                    Qnt = 100, 
+                    Amount = 1000.00,
+                    Products = new[]{
                         new { 
-                            Name = "Group #1 Subgroup #1",
-                            Details = new[]{
-                                new { Item = "Item #1", Qnt=12.0, Price = 50.1 },
-                                new { Item = "Item #2", Qnt=11.0, Price = 77.0 },
-                                new { Item = "Item #3", Qnt=2.5, Price = 65.15 },
+                            Name = "Apple",
+                            Qnt = 40,
+                            Amount = 400.0,
+                            Orders = new[] {
+                                new { Number = "2015-1", Customer = "USA Goverment", Qnt = 1, Amount = 10.0 },
+                                new { Number = "2015-2", Customer = "John Hock", Qnt = 29, Amount = 290.0 },
+                                new { Number = "2015-3", Customer = "Adam Smith", Qnt = 10, Amount = 100.0 },
                             }
                         },
                         new { 
-                            Name = "Group #1 Subgroup #2",
-                            Details = new[]{
-                                new { Item = "Item #1", Qnt=12.0, Price = 50.1 },
-                                new { Item = "Item #2", Qnt=11.0, Price = 77.0 },
-                                new { Item = "Item #3", Qnt=2.5, Price = 65.15 },
+                            Name = "Cherry",
+                            Qnt = 60,
+                            Amount = 600.0,
+                            Orders = new[] {
+                                new { Number = "2015-1", Customer = "USA Goverment", Qnt = 1, Amount = 599.99 },
+                                new { Number = "2015-4", Customer = "Jeam Bean", Qnt = 59, Amount = 0.01 },
                             }
                         }
-                    }   
-                },
-                new { 
-                    Item = "Group #2",
-                    Group2 = new[] {
-                        new { 
-                            Name = "Group #2 Subgroup #1",
-                            Details = new[]{
-                                new { Item = "Item #1", Qnt=12.0, Price = 50.1 },
-                                new { Item = "Item #2", Qnt=11.0, Price = 77.0 },
-                                new { Item = "Item #3", Qnt=2.5, Price = 65.15 },
-                            }
-                        },
-                        new { 
-                            Name = "Group #2 Subgroup #2",
-                            Details = new[]{
-                                new { Item = "Item #1", Qnt=12.0, Price = 50.1 },
-                                new { Item = "Item #2", Qnt=11.0, Price = 77.0 },
-                                new { Item = "Item #3", Qnt=2.5, Price = 65.15 },
-                            }
-                        }
-                    }   
-                }
-            }
+                    }
+                } // Category Foods
+            }, // Categories
         };
 
-        #endregion
 
+#endregion
 
         [Fact]
-        public void Test1()
+        public void GetStructure()
         {
-            // Arrange
+            // creating report structure based on json and template
+            JObject json = JObject.FromObject(jsonOrders);
             var tempFile = GetTempFileName();
             var reporter = new SpreadsheetLightJsonReporter(
-                "Amba.Report.Test\\Templates\\ReportTemplate1.xlsx",
-                //jsonDataWithRows,
-                jsonData1,
+                "Amba.Report.Test\\Templates\\Orders.xlsx",
+                json,
                 tempFile);
-            // Act
-            reporter.Execute();
-            // Assert
-            Assert.True(File.Exists(tempFile));
-            //Process.Start(tempFile);
-            // TODO: check final report, then delete it
-            //File.Delete(tempFile);
 
+            reporter.Execute();
+
+            Process.Start(tempFile);
         }
+
+
         private string GetTempFileName()
         {
             return Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()) + ".xlsx";
         }
 
-        private JObject jsonData1 = JObject.Parse(@"
-{   'Num': '12345678-15',
-    'Date': '2015-05-22T21:01:02',
-    'Org': { 'Name': 'Customer\'s name here' },
-    'Items': [
-        { 'Item': 'Item #1', 'Qnt': 12.5, 'Price': 20.0 },
-        { 'Item': 'Item #2', 'Qnt': 1, 'Price': 55.65 },
-        { 'Item': 'Item #3', 'Qnt': 2.0, 'Price': 50.1 }
-    ],
-    'GroupRows': [{
-        'Item' : 'Item\'s Group #1',
-        'Details': [
-            { 'Item': 'Item #1-1', 'Qnt': 11.5, 'Price': 21.0 },
-            { 'Item': 'Item #1-2', 'Qnt': 10, 'Price': 45.99 },   
-        ]},
-        {
-        'Item' : 'Item\'s Group #2',
-        'Details': [
-            { 'Item': 'Item #2-1', 'Qnt': 11.5, 'Price': 21.0 },
-        ]}
-    ]
-}");
-
-        private JObject jsonData2 = JObject.Parse(@"
-{   'Num': '12345678-15',
-    'Date': '2015-05-22T21:01:02',
-    'Org': { 'Name': 'Customer\'s name here' },
-    'Items': [
-        { 'Item': 'Item #1', 'Qnt': 12.5, 'Price': 20.0 },
-        { 'Item': 'Item #2', 'Qnt': 1, 'Price': 55.65 },
-        { 'Item': 'Item #3', 'Qnt': 2.0, 'Price': 50.1 }
-    ],
-    'Group1': [{
-        'Item' : 'Group #1',
-        'Group2' : [{ 
-            'Name' : 'Group #1 Subgroup #1',
-            'Details': [
-                { 'Item': 'Item #1', 'Qnt': 12.5, 'Price': 20.0 },
-                { 'Item': 'Item #2', 'Qnt': 1, 'Price': 55.65 },
-                { 'Item': 'Item #3', 'Qnt': 2.0, 'Price': 50.1 }    
-            ]},
-            { 
-            'Name' : 'Group #1 Subgroup #2',
-            'Details': [
-                { 'Item': 'Item #1', 'Qnt': 12.5, 'Price': 20.0 },
-                { 'Item': 'Item #2', 'Qnt': 1, 'Price': 55.65 },
-                { 'Item': 'Item #3', 'Qnt': 2.0, 'Price': 50.1 }    
-            ]}
-        ]},
-        
-        {
-        'Item' : 'Group #2',
-        'Group2' : [{ 
-            'Name' : 'Group #2 Subgroup #1',
-            'Details': [
-                { 'Item': 'Item #1', 'Qnt': 12.5, 'Price': 20.0 },
-                { 'Item': 'Item #2', 'Qnt': 1, 'Price': 55.65 },
-                { 'Item': 'Item #3', 'Qnt': 2.0, 'Price': 50.1 }    
-            ]
-            },
-        ]}    
-    ]
-}");
     }
 }
 
