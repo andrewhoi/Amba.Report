@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with "Amba.Report" library. If not, see <http://www.gnu.org/licenses/>
 
+using Amba.SpreadsheetLight;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -28,10 +29,11 @@ namespace Amba.Report.Test
     {
         #region Test data
 
-        dynamic jsonOrders = new {
-            Date = new DateTime(2015,3,22),
+        dynamic jsonOrders = new
+        {
+            Date = new DateTime(2015, 3, 22),
             Company = new { Name = "Example company", Address = "Paris" },
-            PrintedAt = DateTime.Now,
+            PrintedAt = new DateTime(2015, 3, 13, 21, 01, 02),
             Categories = new[]{
                 new { 
                     Name = "Foods", 
@@ -63,11 +65,13 @@ namespace Amba.Report.Test
         };
 
 
-#endregion
+        #endregion
 
         [Fact]
         public void GetStructure()
         {
+            // Arrange
+
             // creating report structure based on json and template
             JObject json = JObject.FromObject(jsonOrders);
             var tempFile = GetTempFileName();
@@ -76,8 +80,50 @@ namespace Amba.Report.Test
                 json,
                 tempFile);
 
+            // Act
             reporter.Execute();
 
+            // Assert
+
+            using (var doc = new SLDocument(tempFile))
+            {
+                Assert.Equal(new DateTime(2015, 03, 22), doc.GetCellValueAsDateTime("B2"));
+                Assert.Equal("Example company", doc.GetCellValueAsString("B3"));
+                Assert.Equal("Paris", doc.GetCellValueAsString("B4"));
+                Assert.Equal("Foods", doc.GetCellValueAsString("A7"));
+                Assert.Equal("Apple", doc.GetCellValueAsString("A8"));
+                // order row 1
+                Assert.Equal(1m, doc.GetCellValueAsDecimal("D9"));
+                Assert.Equal(10m, doc.GetCellValueAsDecimal("E9"));
+                // order row 2
+                Assert.Equal(29m, doc.GetCellValueAsDecimal("D10"));
+                Assert.Equal(290m, doc.GetCellValueAsDecimal("E10"));
+                // order row 3
+                Assert.Equal(10m, doc.GetCellValueAsDecimal("D11"));
+                Assert.Equal(100m, doc.GetCellValueAsDecimal("E11"));
+                // footer for apple
+                Assert.Equal(40.0m, doc.GetCellValueAsDecimal("D12"));
+                Assert.Equal(400.0m, doc.GetCellValueAsDecimal("E12"));
+                // header for cheryy
+                Assert.Equal("Cherry", doc.GetCellValueAsString("A13"));
+                // order row 4
+                Assert.Equal(1m, doc.GetCellValueAsDecimal("D14"));
+                Assert.Equal(599.99m, Math.Round(doc.GetCellValueAsDecimal("E14"), 2));
+                // order row 5
+                Assert.Equal(59m, doc.GetCellValueAsDecimal("D15"));
+                Assert.Equal(0.01m, Math.Round(doc.GetCellValueAsDecimal("E15"), 2));
+                // footer for cherry
+                Assert.Equal(60.0m, doc.GetCellValueAsDecimal("D16"));
+                Assert.Equal(600.0m, doc.GetCellValueAsDecimal("E16"));
+                // footer for Foods
+                Assert.Equal(100.0m, doc.GetCellValueAsDecimal("D17"));
+                Assert.Equal(1000.0m, doc.GetCellValueAsDecimal("E17"));
+                // Report footer
+                Assert.Equal(new DateTime(2015, 3, 13, 21, 01, 02), doc.GetCellValueAsDateTime("B19"));
+
+            }
+            //File.Delete(tempFile);
+            //Assert.False(File.Exists(tempFile));
             Process.Start(tempFile);
         }
 
