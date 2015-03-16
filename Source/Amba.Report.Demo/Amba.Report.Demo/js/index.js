@@ -31,7 +31,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "POST",
-            url: "./api/report/Demo1",
+            url: "./api/report/Demo1?downloadName=ReportFromDemo.xlsx",
             data: formData,
             dataType: "json",
             contentType: "application/json"

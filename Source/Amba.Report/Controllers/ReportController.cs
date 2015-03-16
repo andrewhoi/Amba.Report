@@ -22,6 +22,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Linq;
 
 namespace Amba.Report.Controllers
 {
@@ -54,7 +55,24 @@ namespace Amba.Report.Controllers
             return await Task.FromResult(GetReport(id, reportData));
         }
 
+        private string GetFileName(string id)
+        {
+            var result = Request.GetQueryNameValuePairs()
+                .FirstOrDefault(k => k.Key.Equals("downloadName", StringComparison.OrdinalIgnoreCase));
+            string file;
+            if (String.IsNullOrWhiteSpace(result.Key))
+            {
+                file = Config.Templates[id].DownloadName;
+            }
+            else
+            {
+                file = result.Value;
+                if (!file.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase)) file += ".xlsx";
 
+            }
+            var fileName = Path.GetFullPath(Path.Combine(Config.TemplatesPath, file));
+            return fileName;
+        }
         private IHttpActionResult GetReport(string id, JObject reportData)
         {
             if (!Config.Templates.ContainsKey(id))
@@ -69,7 +87,7 @@ namespace Amba.Report.Controllers
                 return NotFound();
             }
 
-            var fileName = Path.GetFullPath(Path.Combine(Config.TemplatesPath, Config.Templates[id].DownloadName));
+            var fileName = GetFileName(id);
             var fi = new FileInfo(fileName);
 
             var tempDirName = Path.GetRandomFileName();
