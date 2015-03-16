@@ -95,11 +95,16 @@
     </Content>
     <Content Include="Amba.Report.Demo\css\style.min.css">
       <DependentUpon>style.css</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\fonts\bootstrap\glyphicons-halflings-regular.svg" />
+    <Content Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\fonts\bootstrap\glyphicons-halflings-regular.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\javascripts\bootstrap-sprockets.js" />
     <Content Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\javascripts\bootstrap.js" />
-    <Content Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\javascripts\bootstrap.min.js" />
+    <Content Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\javascripts\bootstrap.min.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\javascripts\bootstrap\affix.js" />
     <Content Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\javascripts\bootstrap\alert.js" />
     <Content Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\javascripts\bootstrap\button.js" />
@@ -117,9 +122,14 @@
     </Content>
     <Content Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\stylesheets\bootstrap.min.css">
       <DependentUpon>bootstrap.css</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Amba.Report.Demo\vendors\jquery\jquery-1.11.2.js" />
-    <Content Include="Amba.Report.Demo\vendors\jquery\jquery-1.11.2.min.js" />
+    <Content Include="Amba.Report.Demo\vendors\jquery\jquery-1.11.2.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Amba.Report.Demo\vendors\jquery\jquery-1.11.2.min.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Amba.Report\Downloads\ReadMe.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -127,12 +137,24 @@
       <DependentUpon>style.css</DependentUpon>
     </None>
     <None Include="Amba.Report.Demo\css\style.scss" />
-    <None Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\fonts\bootstrap\glyphicons-halflings-regular.eot" />
-    <None Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\fonts\bootstrap\glyphicons-halflings-regular.ttf" />
-    <None Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\fonts\bootstrap\glyphicons-halflings-regular.woff" />
-    <None Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\fonts\bootstrap\glyphicons-halflings-regular.woff2" />
-    <None Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\images\.keep" />
-    <None Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\LICENSE" />
+    <None Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\fonts\bootstrap\glyphicons-halflings-regular.eot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\fonts\bootstrap\glyphicons-halflings-regular.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\fonts\bootstrap\glyphicons-halflings-regular.woff">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\fonts\bootstrap\glyphicons-halflings-regular.woff2">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\images\.keep">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\LICENSE">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\stylesheets\bootstrap.css.map">
       <DependentUpon>bootstrap.css</DependentUpon>
     </None>
@@ -210,17 +232,19 @@
     <None Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\stylesheets\_bootstrap-mincer.scss" />
     <None Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\stylesheets\_bootstrap-sprockets.scss" />
     <None Include="Amba.Report.Demo\vendors\bootstrap\3.3.3\stylesheets\_bootstrap.scss" />
-    <None Include="Amba.Report.Demo\vendors\jquery\jquery-1.11.2.min.map" />
+    <None Include="Amba.Report.Demo\vendors\jquery\jquery-1.11.2.min.map">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Amba.Report.Demo\vendors\jquery\jquery-2.1.3.min.map" />
     <None Include="Amba.Report.licenseheader" />
     <Content Include="Amba.Report\Reports.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Amba.Report\Templates\ReportTemplate1.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Amba.Report\Reports.xsd">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Amba.Report\Templates\Orders.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="App.config">
@@ -235,8 +259,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Amba.Report.Demo\index.html" />
-    <Content Include="Amba.Report.Demo\js\report.js" />
+    <Content Include="Amba.Report.Demo\index.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Amba.Report.Demo\js\index.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Amba.Report.Demo\vendors\jquery\jquery-2.1.3.js" />
     <Content Include="Amba.Report.Demo\vendors\jquery\jquery-2.1.3.min.js" />
   </ItemGroup>

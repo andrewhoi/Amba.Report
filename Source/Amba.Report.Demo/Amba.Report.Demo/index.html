@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>AmbaCloud.Report</title>
+    <title>Amba.Report demo page</title>
     <meta name="description" content="">
     <meta name="author" content="">
     <!-- Mobile Specific Metas –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -22,7 +22,6 @@
     <!-- Favicon
     –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <!--<link rel="icon" type="image/png" href="images/favicon.png">-->
-
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -32,19 +31,24 @@
 
 
 
+
+
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
-                <h1 class="page-header">Amba.Report</h1>
+                <h1 class="page-header">Amba.Report demo page</h1>
             </div>
         </div>
         <div class="row">
             <div class="col-md-8 col-md-offset-2">
                 <div class="bs-callout bs-callout-primary">
                     <h4>Demo example</h4>
-                    <p>
+                    <pre>POST <strong>/api/report/Demo1</strong>
+</pre>
+
+                    <!--<p>
                         <div class="btn-group" data-toggle="buttons">
                             <label class="btn btn-default active" id="btn1">
                                 <input type="radio" name="options" id="option1" autocomplete="off">Demo 1
@@ -53,7 +57,8 @@
                                 <input type="radio" name="options" id="option2" autocomplete="off">Demo 2
                             </label>
                         </div>
-                    </p>
+                    </p>-->
+
                 </div>
             </div>
 
@@ -62,8 +67,8 @@
             <div class="col-md-8 col-md-offset-2">
                 <form>
                     <div class="form-group">
-                        <label for="reportData">Report data</label>
-                        <textarea id="reportData" class="form-control" rows="24"></textarea>
+                        <label for="reportData">Request data</label>
+                        <textarea id="reportData" class="form-control" rows="12"></textarea>
                     </div>
                     <button class="btn btn-primary" type="button" id="submit" data-loading-text="Loading..." autocomplete="off">Submit</button>
                 </form>
@@ -74,7 +79,7 @@
     <iframe name="downloadFrame" style='display: none;'></iframe>
     <!-- SCRIPTS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <script src="./vendors/jquery/jquery-2.1.3.min.js"></script>
-    <script src="./vendors/bootstrap-3.3.2/js/bootstrap.min.js"></script>
-    <script src="./js/report.js"></script>
+    <script src="./vendors/bootstrap/3.3.3/javascripts/bootstrap.min.js"></script>
+    <script src="./js/index.js"></script>
 </body>
 </html>

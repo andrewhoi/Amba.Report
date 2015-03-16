@@ -19,5 +19,5 @@ along with "Amba.Report" library. If not, see <http://www.gnu.org/licenses/>
 -->
 
 <Reports>
-  <Report name="Demo1" path="ReportTemplate1.xlsx" downloadName="Demo1_Report.xlsx"></Report>
+  <Report name="Demo1" path="Orders.xlsx" downloadName="OrdersReport.xlsx"></Report>
 </Reports>
