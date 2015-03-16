@@ -84,8 +84,7 @@ namespace Amba.Report.Controllers
                 {
                     reporter.Execute();
                 }
-                // TODO: customize uri for downloads in configSection
-                Uri uri = new Uri("./downloads/" + tempDirName + "/" + fi.Name, UriKind.Relative);
+                Uri uri = new Uri("." + Config.DownloadsUri + "/" + tempDirName + "/" + fi.Name, UriKind.Relative);
                 return Created<string>(uri.ToString(),
                     String.Format("File will be deleted in {0} minutes.", Amba.Report.Config.DeleteOlderThanInMinutes));
             }

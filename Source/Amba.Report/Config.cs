@@ -77,7 +77,13 @@ namespace Amba.Report
             else
             {
                 Uri = section.Uri;
+                if (Uri.StartsWith("/"))
+                {
+                    Uri = Uri.Substring(1);
+                }
             }
+
+
 
             // check Templates data file
             TemplatesDataFile = section.Templates.DataFile;
@@ -138,6 +144,25 @@ namespace Amba.Report
                 else
                 {
                     DownloadsPath = fullPath;
+                }
+            }
+
+            // check downloads uri
+            if (string.IsNullOrWhiteSpace(section.Downloads.Uri))
+            {
+                errors.Add(new ConfigError("downloads.uri",
+                    "Uri is not defined in config section."));
+            }
+            else
+            {
+                DownloadsUri = section.Downloads.Uri;
+                if (!DownloadsUri.StartsWith("/"))
+                {
+                    DownloadsUri = "/" + DownloadsUri;
+                }
+                if (DownloadsUri.EndsWith("/"))
+                {
+                    DownloadsUri = DownloadsUri.Substring(0, DownloadsUri.Length - 1);
                 }
             }
 
@@ -227,6 +252,11 @@ namespace Amba.Report
         /// Uri for api address, default value is 'api/report/{id}'
         /// </summary>
         public static string Uri { get; private set; }
+
+        /// <summary>
+        /// Uri for download files
+        /// </summary>
+        public static string DownloadsUri { get; private set; }
 
         /// <summary>
         /// Full path to xml file with all reports description

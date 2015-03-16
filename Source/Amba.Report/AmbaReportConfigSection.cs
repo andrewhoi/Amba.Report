@@ -147,6 +147,22 @@ namespace Amba.Report
         }
 
         /// <summary>
+        /// Uri to download files
+        /// </summary>
+        [ConfigurationProperty("uri", DefaultValue = "/downloads", IsRequired = false)]
+        public String Uri
+        {
+            get
+            {
+                return (String)this["uri"];
+            }
+            set
+            {
+                this["uri"] = value;
+            }
+        }
+
+        /// <summary>
         /// Interval for save file without deleting in minutes
         /// </summary>
         [ConfigurationProperty("deleteOlderThanInMinutes", DefaultValue = Config.DELETE_OLDER_THAN_IN_MINUTES, IsRequired = false)]
