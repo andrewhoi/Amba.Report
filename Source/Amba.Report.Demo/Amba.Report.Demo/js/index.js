@@ -1,64 +1,19 @@
 ﻿// #region
-//"2015-03-22T00:00:00"
+
 var json1 = {
     "Date": new Date("2015-03-22T00:00:00"),
     "Company": {
-        "Name": "Example company",
-        "Address": "Paris"
+        "Name": "Example company"
     },
-    "PrintedAt": "2015-03-13T21:01:02",
-    "Categories": [
+    "Rows": [
       {
-          "Name": "Foods",
+          "Item": "Apples",
           "Qnt": 100,
-          "Amount": 1000.0,
-          "Products": [
-            {
-                "Name": "Apple",
-                "Qnt": 40,
-                "Amount": 400.0,
-                "Orders": [
-                  {
-                      "Number": "2015-1",
-                      "Customer": "USA Goverment",
-                      "Qnt": 1,
-                      "Amount": 10.0
-                  },
-                  {
-                      "Number": "2015-2",
-                      "Customer": "John Hock",
-                      "Qnt": 29,
-                      "Amount": 290.0
-                  },
-                  {
-                      "Number": "2015-3",
-                      "Customer": "Adam Smith",
-                      "Qnt": 10,
-                      "Amount": 100.0
-                  }
-                ]
-            },
-            {
-                "Name": "Cherry",
-                "Qnt": 60,
-                "Amount": 600.0,
-                "Orders": [
-                  {
-                      "Number": "2015-1",
-                      "Customer": "USA Goverment",
-                      "Qnt": 1,
-                      "Amount": 599.99
-                  },
-                  {
-                      "Number": "2015-4",
-                      "Customer": "Jeam Bean",
-                      "Qnt": 59,
-                      "Amount": 0.01
-                  }
-                ]
-            }
-          ]
-      }
+      },
+      {
+          "Item": "Oranges",
+          "Qnt": 50,
+      },
     ]
 }
 

@@ -23,14 +23,11 @@ namespace Amba.Report.Demo
     {
         static void Main(string[] args)
         {
-            var type = typeof(Amba.Report.Controllers.ReportController); 
-            Console.WriteLine(type.ToString());
             using (WebApp.Start<Startup>("http://localhost:5000"))
             {
                 Console.WriteLine("Server ready...");
                 Console.ReadLine();
             }
-
         }
     }
 }

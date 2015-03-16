@@ -28,49 +28,36 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-
-
-
-
-
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-12">
-                <h1 class="page-header">Amba.Report demo page</h1>
+            <div class="col-md-8 col-md-offset-2">
+                <h1 class="page-header">Amba.Report</h1>
             </div>
         </div>
         <div class="row">
             <div class="col-md-8 col-md-offset-2">
                 <div class="bs-callout bs-callout-primary">
                     <h4>Demo example</h4>
-                    <pre>POST <strong>/api/report/Demo1</strong>
+                    <p>
+                        <strong>
+                            <pre>POST api/report/Demo1
 </pre>
-
-                    <!--<p>
-                        <div class="btn-group" data-toggle="buttons">
-                            <label class="btn btn-default active" id="btn1">
-                                <input type="radio" name="options" id="option1" autocomplete="off">Demo 1
-                            </label>
-                            <label class="btn btn-default" id="btn2">
-                                <input type="radio" name="options" id="option2" autocomplete="off">Demo 2
-                            </label>
-                        </div>
-                    </p>-->
-
+                        </strong>
+                    </p>
                 </div>
             </div>
-
         </div>
         <div class="row">
             <div class="col-md-8 col-md-offset-2">
                 <form>
                     <div class="form-group">
                         <label for="reportData">Request data</label>
-                        <textarea id="reportData" class="form-control" rows="12"></textarea>
+                        <textarea id="reportData" class="form-control" rows="16"></textarea>
                     </div>
-                    <button class="btn btn-primary" type="button" id="submit" data-loading-text="Loading..." autocomplete="off">Submit</button>
+                    <a class="btn btn-link" href="./templates/Demo1.xlsx">Download template</a>
+                    <button class="btn btn-primary" type="button" id="submit" data-loading-text="Generating..." autocomplete="off">POST Request</button>
                 </form>
             </div>
         </div>
