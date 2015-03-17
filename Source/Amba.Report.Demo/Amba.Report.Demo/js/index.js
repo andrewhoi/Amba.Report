@@ -6,14 +6,8 @@ var json1 = {
         "Name": "Example company"
     },
     "Rows": [
-      {
-          "Item": "Apples",
-          "Qnt": 100,
-      },
-      {
-          "Item": "Oranges",
-          "Qnt": 50,
-      },
+        { "Item": "Apples", "Qnt": 100, },
+        { "Item": "Oranges", "Qnt": 50, },
     ]
 }
 
@@ -25,14 +19,14 @@ $(document).ready(function () {
     $("#reportData").text(JSON.stringify(json1, null, '    '));
 
     $('#submit').click(function () {
-        var formData = $("#reportData").val();
+        var jsonData = $("#reportData").val();
 
         var $btn = $(this).button('loading');
 
         $.ajax({
             type: "POST",
             url: "./api/report/Demo1?downloadName=ReportFromDemo.xlsx",
-            data: formData,
+            data: jsonData,
             dataType: "json",
             contentType: "application/json"
         })

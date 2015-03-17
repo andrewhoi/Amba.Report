@@ -26,6 +26,9 @@ namespace Amba.Report.Demo
             using (WebApp.Start<Startup>("http://localhost:5000"))
             {
                 Console.WriteLine("Server ready...");
+#if DEBUG
+                System.Diagnostics.Process.Start("http://localhost:5000");
+#endif
                 Console.ReadLine();
             }
         }

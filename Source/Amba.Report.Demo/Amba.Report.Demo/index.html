@@ -39,29 +39,87 @@
         <div class="row">
             <div class="col-md-8 col-md-offset-2">
                 <div class="bs-callout bs-callout-primary">
-                    <h4>Demo example</h4>
-                    <p>
-                        <strong>
-                            <pre>POST api/report/Demo1
-</pre>
-                        </strong>
-                    </p>
+                    <h4>POST api/report/{id}</h4>
+
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-md-8 col-md-offset-2">
-                <form>
-                    <div class="form-group">
-                        <label for="reportData">Request data</label>
-                        <textarea id="reportData" class="form-control" rows="16"></textarea>
+
+
+                <div role="tabpanel">
+
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#demo" aria-controls="home" role="tab" data-toggle="tab">Request</a></li>
+                        <li role="presentation"><a href="#code" aria-controls="profile" role="tab" data-toggle="tab">Code for this example</a></li>
+                    </ul>
+
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="demo">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <form style="margin-top:20px;">
+                                            <div class="form-group">
+                                                <textarea id="reportData" class="form-control" rows="16"></textarea>
+                                            </div>
+                                            <a class="btn btn-link" href="./templates/Demo1.xlsx">Download template</a>
+                                            <button class="btn btn-primary" type="button" id="submit" data-loading-text="Generating..." autocomplete="off">POST Request</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="code">
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="bs-callout bs-callout-success">
+                                        <h4>Code for this example:</h4>
+                                        <p>
+                                            <pre>// index.js
+$.ajax({
+    type: "POST",
+    url: "./api/report/Demo1",
+    data: jsonData,
+    dataType: "json",
+    contentType: "application/json"
+})
+.done(function (msg, status, jqxhr) {
+    var tempLocation = jqxhr.getResponseHeader("Location"); // return url in Location header
+    if (tempLocation) {
+        $("iframe[name='downloadFrame']").attr("src", tempLocation); // download it now
+    }
+});
+
+// index.html
+&lt;iframe name="downloadFrame" style='display: none;'&gt;&lt;/iframe&gt;</pre>
+
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
                     </div>
-                    <a class="btn btn-link" href="./templates/Demo1.xlsx">Download template</a>
-                    <button class="btn btn-primary" type="button" id="submit" data-loading-text="Generating..." autocomplete="off">POST Request</button>
-                </form>
+
+                </div>
+
+
+
             </div>
         </div>
+
+
+
+
     </div>
+
 
     <iframe name="downloadFrame" style='display: none;'></iframe>
     <!-- SCRIPTS –––––––––––––––––––––––––––––––––––––––––––––––––– -->
