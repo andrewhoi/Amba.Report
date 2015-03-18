@@ -95,7 +95,10 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Amba.Report.Test\Templates\Orders.xlsx">
+    <Content Include="Amba.Report.Test\Templates\Orders1.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Amba.Report.Test\Templates\Orders2.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="app.config" />

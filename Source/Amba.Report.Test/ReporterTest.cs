@@ -67,8 +67,36 @@ namespace Amba.Report.Test
 
         #endregion
 
+        /// <summary>
+        /// Test replacement in brackets -- {PropertyName}
+        /// </summary>
         [Fact]
-        public void GetStructure()
+        public void Test2()
+        {
+           
+            // Arrange
+            JObject json = JObject.FromObject(jsonOrders);
+            var tempFile = GetTempFileName();
+            var reporter = new SpreadsheetLightJsonReporter(
+                "Amba.Report.Test\\Templates\\Orders2.xlsx",
+                json,
+                tempFile);
+
+            // Act
+            reporter.Execute();
+
+            // Assert
+            using (var doc = new SLDocument(tempFile))
+            {
+            }
+            //File.Delete(tempFile);
+            //Assert.False(File.Exists(tempFile));
+            Process.Start(tempFile);
+        }
+
+
+        [Fact]
+        public void Test1()
         {
             // Arrange
 
@@ -76,7 +104,7 @@ namespace Amba.Report.Test
             JObject json = JObject.FromObject(jsonOrders);
             var tempFile = GetTempFileName();
             var reporter = new SpreadsheetLightJsonReporter(
-                "Amba.Report.Test\\Templates\\Orders.xlsx",
+                "Amba.Report.Test\\Templates\\Orders1.xlsx",
                 json,
                 tempFile);
 
@@ -122,9 +150,9 @@ namespace Amba.Report.Test
                 Assert.Equal(new DateTime(2015, 3, 13, 21, 01, 02), doc.GetCellValueAsDateTime("B19"));
 
             }
-            //File.Delete(tempFile);
-            //Assert.False(File.Exists(tempFile));
-            Process.Start(tempFile);
+            File.Delete(tempFile);
+            Assert.False(File.Exists(tempFile));
+            //Process.Start(tempFile);
         }
 
 

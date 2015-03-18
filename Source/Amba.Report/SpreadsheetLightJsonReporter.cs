@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Amba.SpreadsheetLight;
 using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
 
 namespace Amba.Report
 {
@@ -30,6 +31,7 @@ namespace Amba.Report
         private readonly string templateName;
         private readonly JObject jsonData;
         private readonly string outputFile;
+        Regex regexReplace = new Regex(@"(?<=\{)(?<!\{{2})[^{}]*(?=\})(?=\})(?!\}{2})");
         /// <summary>
         /// Constructor of the class
         /// </summary>
@@ -53,14 +55,16 @@ namespace Amba.Report
         {
             using (var doc = new SLDocument(templateName))
             {
+                // save current worksheet
                 var activeSheet = doc.GetCurrentWorksheetName();
-
                 FillReportWithData(doc, jsonData);
                 ClearDefinedNames(doc);
+                // restore current worksheet
                 doc.SelectWorksheet(activeSheet);
                 doc.SaveAs(outputFile);
             }
         }
+
 
         private void ClearDefinedNames(SLDocument doc)
         {
@@ -69,7 +73,12 @@ namespace Amba.Report
                 doc.DeleteDefinedName(item.Name);
             }
         }
-
+        /// <summary>
+        /// Main method to fill report
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="json"></param>
+        /// <param name="prefix"></param>
         private void FillReportWithData(SLDocument doc, JObject json, string prefix = "")
         {
             foreach (var property in json)
@@ -88,8 +97,104 @@ namespace Amba.Report
                 }
 
                 SetDefinedNameValue(doc, namedRangeName, property.Value);
-
             }
+            if (String.IsNullOrWhiteSpace(prefix))
+            {
+                ReplaceInBrackets(doc, json);
+            }
+        }
+
+        private void ReplaceInBrackets(SLDocument doc, JObject json)
+        {
+            // 1. Find all cells with string in bracket excluding entire rows in DefinedNames (that is for arrays)
+            //var statList = new Dictionary<string, SLWorksheetStatistics>();
+            var sheets = doc.GetSheetNames();
+            foreach (var sheet in sheets)
+            {
+                if (doc.SelectWorksheet(sheet))
+                {
+                    //var cells = doc.GetCells().Where(c => c.Value.DataType.ToString()=="1");
+                    var cells = doc.GetCells();
+
+                    foreach (var cell in cells)
+                    {
+                        var cellValue = doc.GetCellValueAsString(cell.Key.RowIndex, cell.Key.ColumnIndex);
+                        var matches = regexReplace.Matches(cellValue);
+                        if (matches.Count > 0)
+                        {
+                            ReplaceValueInBrackets(doc, cell.Key.RowIndex, cell.Key.ColumnIndex, cellValue, json, matches);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        private void ReplaceValueInBrackets(SLDocument doc, int row, int column, string cellValue, JObject json, MatchCollection matches)
+        {
+            object[] param = new object[matches.Count];
+            for (int i = 0; i < matches.Count; i++)
+            {
+
+                string propName = matches[i].ToString();
+                if (propName.Contains(':'))
+                {
+                    propName = propName.Substring(0, propName.IndexOf(':'));
+                }
+                JToken token = TryGetJsonValue(json, propName);
+                if (token != null)
+                {
+                    cellValue = cellValue.Replace(propName, i.ToString());
+                    param[i] = token.Value<object>();
+                }
+                else
+                { 
+                    // remove the value
+                    cellValue = cellValue.Replace(String.Format(@"{{{0}}}", propName), "");
+                }
+            }
+            cellValue = String.Format(cellValue, param);
+            doc.SetCellValue(row, column, cellValue);
+        }
+        private JToken TryGetJsonValue(JObject json, string path)
+        {
+            if (json == null) return null;
+            JToken token;
+            var ar = path.Split('.');
+            if (ar.Length == 1)
+            {
+                if (json.TryGetValue(path, out token))
+                {
+                    return token;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                if (json.TryGetValue(ar[0], out token))
+                {
+                    JObject jobj = token as JObject;
+                    if (jobj != null)
+                    {
+                        return TryGetJsonValue(jobj, path.Replace(ar[0] + ".", ""));
+                    }
+                    else return null;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        private bool IsEntireRow(string range)
+        {
+            range = range.Replace("$", "").Substring(range.IndexOf('!') + 1);
+            var removedLetters = new string(range.Where(ch => !Char.IsLetter(ch)).ToArray());
+            return range.Equals(removedLetters);
         }
 
         private void SetDefinedNameValue(SLDocument doc, string namedRangeName, JToken property, int rowOffset = 0)
@@ -207,11 +312,11 @@ namespace Amba.Report
                 }
             }
             // Replace values in brackets, e.g. {Name}
-            
+
         }
         private void PrintValuesInBrackets(SLDocument doc, TemplateInfo templateInfo, string propertyName, JObject data)
-        { 
-            
+        {
+
         }
 
         private void NormalizeStructure(ArrayPrintStructure structure)
