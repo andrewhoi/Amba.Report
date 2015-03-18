@@ -113,7 +113,7 @@ namespace Amba.Report
             {
                 if (doc.SelectWorksheet(sheet))
                 {
-                    //var cells = doc.GetCells().Where(c => c.Value.DataType.ToString()=="1");
+                    //var cells = doc.GetCells().Where(c => c.Value.DataType.ToString()=="1"); // Need reference to OpenXml.dll to filter by DataType
                     var cells = doc.GetCells();
 
                     foreach (var cell in cells)
@@ -312,13 +312,21 @@ namespace Amba.Report
                 }
             }
             // Replace values in brackets, e.g. {Name}
-
+            int rowStart = nextRow - templateInfo.RowCount;
+            int rowEnd = nextRow - 1;
+            var cells = doc.GetCells().Where(c => c.Key.RowIndex >= rowStart && c.Key.RowIndex <= rowEnd);
+            
+            foreach (var cell in cells)
+            {
+                var cellValue = doc.GetCellValueAsString(cell.Key.RowIndex, cell.Key.ColumnIndex);
+                var matches = regexReplace.Matches(cellValue);
+                if (matches.Count > 0)
+                {
+                    ReplaceValueInBrackets(doc, cell.Key.RowIndex, cell.Key.ColumnIndex, cellValue, data, matches);
+                }
+            }
         }
-        private void PrintValuesInBrackets(SLDocument doc, TemplateInfo templateInfo, string propertyName, JObject data)
-        {
-
-        }
-
+     
         private void NormalizeStructure(ArrayPrintStructure structure)
         {
             // TODO move header to footer if children started before header (case when no header, just footer).
