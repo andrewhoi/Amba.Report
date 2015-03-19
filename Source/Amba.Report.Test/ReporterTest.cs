@@ -76,23 +76,35 @@ namespace Amba.Report.Test
         {
 
             // Arrange
-            //JObject json = JObject.FromObject(jsonOrders);
-            //var tempFile = GetTempFileName();
-            //var reporter = new SpreadsheetLightJsonReporter(
-            //    "Amba.Report.Test\\Templates\\Orders3.xlsx",
-            //    json,
-            //    tempFile);
+            JObject json = JObject.FromObject(jsonOrders);
+            var tempFile = GetTempFileName();
+            var reporter = new SpreadsheetLightJsonReporter(
+                "Amba.Report.Test\\Templates\\Orders3.xlsx",
+                json,
+                tempFile);
 
             //// Act
-            //reporter.Execute();
+            reporter.Execute();
 
-            //// Assert
+            // Assert
             //using (var doc = new SLDocument(tempFile))
             //{
+            //    doc.SelectWorksheet("Orders");
+            //    Assert.Equal(new DateTime(2015, 03, 22), doc.GetCellValueAsDateTime("B2"));
+            //    Assert.Equal("Example company", doc.GetCellValueAsString("B3"));
+            //    Assert.Equal("Paris", doc.GetCellValueAsString("B4"));
+            //    //Assert.Equal("Report date: 22.03.2015", doc.GetCellValueAsString("A21"));
+            //    //Assert.Equal("Company: Example company", doc.GetCellValueAsString("A22"));
+            //    doc.SelectWorksheet("Page2");
+            //    Assert.Equal(new DateTime(2015, 03, 22), doc.GetCellValueAsDateTime("B2"));
+            //    Assert.Equal("Example company", doc.GetCellValueAsString("B3"));
+            //    Assert.Equal("Paris", doc.GetCellValueAsString("B4"));
+            //    //Assert.Equal("Report date: 22.03.2015", doc.GetCellValueAsString("A21"));
+            //    //Assert.Equal("Company: Example company", doc.GetCellValueAsString("A22"));
             //}
             //File.Delete(tempFile);
             //Assert.False(File.Exists(tempFile));
-            //Process.Start(tempFile);
+            Process.Start(tempFile);
         }
 
         /// <summary>
