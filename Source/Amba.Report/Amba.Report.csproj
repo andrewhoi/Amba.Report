@@ -82,7 +82,6 @@
     <Compile Include="Config.cs" />
     <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ArrayTemplateInfo.cs" />
     <Compile Include="SpreadsheetLightJsonReporter.cs" />
   </ItemGroup>
   <ItemGroup>

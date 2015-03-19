@@ -28,23 +28,10 @@ namespace Amba.Report
     /// </summary>
     public class SpreadsheetLightJsonReporter : IDisposable
     {
-        #region ================================== Fields ======================================
-        SLDocument doc;
         private readonly string templateName;
         private readonly JObject jsonData;
         private readonly string outputFile;
         Regex regexReplace = new Regex(@"(?<=\{)(?<!\{{2})[^{}]*(?=\})(?=\})(?!\}{2})");
-        /// <summary>
-        /// key = property, sheetName
-        /// </summary>
-        List<ArrayTemplate> ArrayStructure;
-        // Tuple<string, int> sheet+group 
-        List<NextRowInfo> NextRow;
-        #endregion
-
-
-        #region ================================== Constructors ================================
-
         /// <summary>
         /// Constructor of the class
         /// </summary>
@@ -57,79 +44,55 @@ namespace Amba.Report
             this.jsonData = jsonData;
             this.outputFile = outputFile;
         }
-
-        #endregion
-
-
-        #region  ================================== Properties ==================================
-
         /// <summary>
         /// Generated file
         /// </summary>
         public string OutputFile { get { return outputFile; } }
-
-        #endregion
-
-
-        #region ================================== Public methods ==============================
-
-
         /// <summary>
         /// Execute report generation
         /// </summary>
-        /// 
         public void Execute()
         {
-            ArrayStructure = new List<ArrayTemplate>();
-            using (doc = new SLDocument(templateName))
+            using (var doc = new SLDocument(templateName))
             {
                 // save current worksheet
                 var activeSheet = doc.GetCurrentWorksheetName();
-                FillReportWithData(jsonData);
-                ClearDefinedNames();
+                FillReportWithData(doc, jsonData);
+                ClearDefinedNames(doc);
                 // restore current worksheet
                 doc.SelectWorksheet(activeSheet);
                 doc.SaveAs(outputFile);
             }
-            doc = null;
         }
 
 
-        /// <summary>
-        /// Dispose method
-        /// </summary>
-        public void Dispose()
+        private void ClearDefinedNames(SLDocument doc)
         {
+            foreach (var item in doc.GetDefinedNames())
+            {
+                doc.DeleteDefinedName(item.Name);
+            }
         }
-
-
-        #endregion
-
-
-        #region ================================== Private methods =============================
-
-
-
         /// <summary>
         /// Main method to fill report
         /// </summary>
         /// <param name="doc"></param>
         /// <param name="json"></param>
         /// <param name="prefix"></param>
-        private void FillReportWithData(JObject json, string prefix = "")
+        private void FillReportWithData(SLDocument doc, JObject json, string prefix = "")
         {
             foreach (var property in json)
             {
                 var namedRangeName = prefix + property.Key;
                 if (property.Value.Type == JTokenType.Array)
                 {
-                    // Special method for array
-                    FillArray(namedRangeName, (JArray)property.Value);
+                    // Special method
+                    FillArray(doc, namedRangeName, (JArray)property.Value);
                     continue;
                 }
                 if (property.Value.Type == JTokenType.Object)
                 {
-                    FillReportWithData((JObject)property.Value, namedRangeName + ".");
+                    FillReportWithData(doc, (JObject)property.Value, namedRangeName + ".");
                     continue;
                 }
 
@@ -140,149 +103,6 @@ namespace Amba.Report
                 ReplaceInBrackets(doc, json);
             }
         }
-
-
-        // when first level array found
-        private void FillArray(string propertyName, JArray jArray)
-        {
-            BuildArrayStructure(propertyName, jArray);
-            DivideToGroupsArrayStructure();
-            InitNextRows();
-
-
-            PrintArraysWithStructure(propertyName, jArray);
-
-        }
-
-        private void InitNextRows()
-        {
-            NextRow = new List<NextRowInfo>();
-            ArrayStructure
-                .GroupBy(g => new { Sheet = g.RowRange.SheetName, Group = g.Group })
-                .Select(s => new { Group = s.Key, EndRow = s.Max(row => row.RowRange.RowEnd) })
-                .ToList()
-                .ForEach(a => NextRow.Add(new NextRowInfo
-                {
-                    SheetName = a.Group.Sheet,
-                    Group = a.Group.Group,
-                    NextRow = a.EndRow + 1
-                }));
-        }
-        // Separate groups mean separate areas to print arrays
-        private void DivideToGroupsArrayStructure()
-        {
-            foreach (var sheet in doc.GetSheetNames())
-            {
-                var list = ArrayStructure
-                    .Where(s => s.RowRange.SheetName.Equals(sheet, StringComparison.OrdinalIgnoreCase))
-                    .OrderBy(o => o.RowRange.RowStart)
-                    .ToList();
-                if (list.Count == 0) continue;
-
-                ArrayTemplate previous = null;
-                int group = 1;
-                foreach (var rng in list)
-                {
-
-                    if (previous != null)
-                    {
-                        if (previous.RowRange.RowEnd + 1 != rng.RowRange.RowStart)
-                        {
-                            group++;
-                        }
-                        if (rng.PropertyName.StartsWith(previous.PropertyName) && previous.Group == group)
-                        {
-                            previous.IsHeader = true;
-                        }
-                    }
-                    rng.Group = group;
-                    previous = rng;
-                }
-            }
-        }
-
-
-        private void PrintArraysWithStructure(string propertyName, JArray jArray)
-        {
-            var templateArray = ArrayStructure.Where(s => s.PropertyName.Equals(propertyName)).OrderBy(o => o.RowRange.RowStart).ToList();
-            var sheets = templateArray.Select(s => s.RowRange.SheetName).Distinct();
-            if (templateArray.Count == 0) return;
-            foreach (var data in jArray)
-            {
-                foreach (var sheet in sheets)
-                {
-                    if (!doc.SelectWorksheet(sheet)) continue;
-
-                    foreach (var template in templateArray.Where(t => t.RowRange.SheetName.Equals(sheet, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        PrintRow(template, propertyName, data as JObject);
-                    }
-                }
-            }
-        }
-
-        // print single row on single sheet
-        private void PrintRow(ArrayTemplate template, string propertyName, JObject data)
-        {
-            if (data == null) return;
-            var nextRow = NextRow
-                .Where(s => s.SheetName.Equals(template.RowRange.SheetName, StringComparison.OrdinalIgnoreCase)
-                    && s.Group == template.Group)
-                .Select(i => i.NextRow).FirstOrDefault();
-            doc.InsertRow(nextRow, template.RowRange.RowCount);
-            doc.CopyRow(template.RowRange.RowStart, template.RowRange.RowEnd, nextRow);
-            IncrementNextRow(template, nextRow);
-        }
-
-        private void IncrementNextRow(ArrayTemplate template, int fromRow)
-        {
-            NextRow
-                .Where(n => n.SheetName.Equals(template.RowRange.SheetName) && n.NextRow >= fromRow)
-                .ToList()
-                .ForEach(n =>
-                {
-                    n.NextRow = n.NextRow + template.RowRange.RowCount;
-                    
-                });
-
-        }
-
-
-        private void BuildArrayStructure(string propertyName, JArray jArray)
-        {
-            if (!doc.HasDefinedName(propertyName)) return;
-
-            var ranges = doc.GetDefinedNameText(propertyName).Split(',');
-            foreach (var rng in ranges)
-            {
-                var rowRange = new RowRange(rng);
-                if (!ArrayStructure.Any(p => p.PropertyName.Equals(propertyName)
-                    && p.RowRange.SheetName.Equals(rowRange.SheetName)
-                    && p.RowRange.RowStart == rowRange.RowStart))
-                {
-                    ArrayStructure.Add(new ArrayTemplate
-                    {
-                        PropertyName = propertyName,
-                        RowRange = rowRange
-                    });
-                }
-            }
-            // find nested arrays
-            // look through all rows to find arrays
-            foreach (var row in jArray)
-            {
-                // look throug all props
-                foreach (var item in (JObject)row)
-                {
-                    if (item.Value.Type == JTokenType.Array)
-                    {
-                        var subProperty = propertyName + "." + item.Key;
-                        BuildArrayStructure(subProperty, (JArray)item.Value);
-                    }
-                }
-            }
-        }
-
 
         private void ReplaceInBrackets(SLDocument doc, JObject json)
         {
@@ -345,57 +165,6 @@ namespace Amba.Report
             cellValue = String.Format(cellValue, param);
             doc.SetCellValue(row, column, cellValue);
         }
-
-
-        // clear names on end
-        private void ClearDefinedNames()
-        {
-            foreach (var item in doc.GetDefinedNames())
-            {
-                doc.DeleteDefinedName(item.Name);
-            }
-        }
-
-
-        private void SetDefinedNameValue(SLDocument doc, string namedRangeName, JToken property, int rowOffset = 0)
-        {
-            switch (property.Type)
-            {
-                case JTokenType.String:
-                    doc.SetDefinedNameValue<string>(namedRangeName, property.Value<string>(), rowOffset, 0);
-                    break;
-                case JTokenType.Date:
-                    doc.SetDefinedNameValue<DateTime>(namedRangeName, property.Value<DateTime>(), rowOffset, 0);
-                    break;
-                case JTokenType.Integer:
-                    doc.SetDefinedNameValue<int>(namedRangeName, property.Value<int>(), rowOffset, 0);
-                    break;
-                case JTokenType.Float:
-                    doc.SetDefinedNameValue<float>(namedRangeName, property.Value<float>(), rowOffset, 0);
-                    break;
-                case JTokenType.Boolean:
-                    doc.SetDefinedNameValue<bool>(namedRangeName, property.Value<bool>(), rowOffset, 0);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-
-        #endregion
-
-
-        #region ================================== Private functions ===========================
-
-
-        private bool IsEntireRow(string range)
-        {
-            range = range.Replace("$", "").Substring(range.IndexOf('!') + 1);
-            var removedLetters = new string(range.Where(ch => !Char.IsLetter(ch)).ToArray());
-            return range.Equals(removedLetters);
-        }
-
-
         private JToken TryGetJsonValue(JObject json, string path)
         {
             if (json == null) return null;
@@ -430,13 +199,85 @@ namespace Amba.Report
             }
         }
 
+        private bool IsEntireRow(string range)
+        {
+            range = range.Replace("$", "").Substring(range.IndexOf('!') + 1);
+            var removedLetters = new string(range.Where(ch => !Char.IsLetter(ch)).ToArray());
+            return range.Equals(removedLetters);
+        }
 
-        #endregion
+        private void SetDefinedNameValue(SLDocument doc, string namedRangeName, JToken property, int rowOffset = 0)
+        {
+            switch (property.Type)
+            {
+                case JTokenType.String:
+                    doc.SetDefinedNameValue<string>(namedRangeName, property.Value<string>(), rowOffset, 0);
+                    break;
+                case JTokenType.Date:
+                    doc.SetDefinedNameValue<DateTime>(namedRangeName, property.Value<DateTime>(), rowOffset, 0);
+                    break;
+                case JTokenType.Integer:
+                    doc.SetDefinedNameValue<int>(namedRangeName, property.Value<int>(), rowOffset, 0);
+                    break;
+                case JTokenType.Float:
+                    doc.SetDefinedNameValue<float>(namedRangeName, property.Value<float>(), rowOffset, 0);
+                    break;
+                case JTokenType.Boolean:
+                    doc.SetDefinedNameValue<bool>(namedRangeName, property.Value<bool>(), rowOffset, 0);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        int? deleteFrom, deleteTo;
+        // when first level array found
+        private void FillArray(SLDocument doc, string propertyName, JArray jArray)
+        {
+            deleteFrom = deleteTo = null;
+            var structure = new ArrayPrintStructure();
+            FillPrintedStructure(structure, doc, propertyName, jArray);
+            if (structure == null || !structure.Enabled) return;
+
+            // TODO validate structure
+
+            // TODO think about case when no header and have footer
+            NormalizeStructure(structure);
+
+            // print from the last row
+            if (structure.HasFooter) nextRow = structure.Footer.RowEnd + 1;
+            else nextRow = structure.Header.RowEnd + 1;
+
+            deleteTo = nextRow - 1;
+            PrintArraysWithStructure(doc, structure, propertyName, jArray);
+
+            // TODO support separate pages
+            doc.DeleteRow(deleteFrom.Value, deleteTo.Value - deleteFrom.Value + 1);
+        }
 
 
 
+        int nextRow = 0; // TODO separate row for every sheet
+        private void PrintArraysWithStructure(SLDocument doc, ArrayPrintStructure structure, string propertyName, JArray jArray)
+        {
+            if (!structure.Enabled) return;
+            foreach (var data in jArray)
+            {
+                if (structure.HasHeader)
+                {
+                    PrintRow(doc, structure.Header, propertyName, data as JObject, true);
+                }
+                if (structure.HasChildren)
+                {
 
+                }
+                if (structure.HasFooter)
+                {
+                    PrintRow(doc, structure.Footer, propertyName, data as JObject, false);
+                }
+            }
 
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -445,55 +286,114 @@ namespace Amba.Report
         /// <param name="propertyName">row's property name</param>
         /// <param name="data">current row</param>
         /// <param name="isHeader"></param>
-        //private void PrintRow(SLDocument doc, TemplateInfo templateInfo, string propertyName, JObject data, bool isHeader)
-        //{
-        //    if (data == null) return;
-        //    doc.InsertRow(nextRow, templateInfo.RowCount);
-        //    doc.CopyRow(templateInfo.RowStart, templateInfo.RowEnd, nextRow);
-        //    nextRow += templateInfo.RowCount;
-        //    if (!deleteFrom.HasValue) deleteFrom = templateInfo.RowStart;
-        //    // Print all properties in current row
-        //    foreach (var item in data)
-        //    {
-        //        var subProperty = propertyName + "." + item.Key;
-        //        if (isHeader && item.Value.Type == JTokenType.Array)
-        //        {
-        //            if (templateInfo.Parent.Children.ContainsKey(item.Key))
-        //            {
-        //                PrintArraysWithStructure(doc, templateInfo.Parent.Children[item.Key], subProperty, (JArray)item.Value);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            // print prop
-        //            int offset = nextRow - templateInfo.RowStart - 1;
-        //            if (doc.SelectWorksheet(templateInfo.SheetName))
-        //            {
-        //                // print only if property inside inserted row
-        //                int r1, r2;
-        //                SLDocument.WhatIsRowStartRowEnd(doc.GetDefinedNameText(subProperty), out r1, out r2);
-        //                if (r1 <= templateInfo.RowStart && templateInfo.RowEnd <= r2)
-        //                {
-        //                    SetDefinedNameValue(doc, subProperty, item.Value, offset);
-        //                }
-        //            }
-        //        }
-        //    }
-        //    // Replace values in brackets, e.g. {Name}
-        //    int rowStart = nextRow - templateInfo.RowCount;
-        //    int rowEnd = nextRow - 1;
-        //    var cells = doc.GetCells().Where(c => c.Key.RowIndex >= rowStart && c.Key.RowIndex <= rowEnd);
+        private void PrintRow(SLDocument doc, TemplateInfo templateInfo, string propertyName, JObject data, bool isHeader)
+        {
+            if (data == null) return;
+            doc.InsertRow(nextRow, templateInfo.RowCount);
+            doc.CopyRow(templateInfo.RowStart, templateInfo.RowEnd, nextRow);
+            nextRow += templateInfo.RowCount;
+            if (!deleteFrom.HasValue) deleteFrom = templateInfo.RowStart;
+            // Print all properties in current row
+            foreach (var item in data)
+            {
+                var subProperty = propertyName + "." + item.Key;
+                if (isHeader && item.Value.Type == JTokenType.Array)
+                {
+                    if (templateInfo.Parent.Children.ContainsKey(item.Key))
+                    {
+                        PrintArraysWithStructure(doc, templateInfo.Parent.Children[item.Key], subProperty, (JArray)item.Value);
+                    }
+                }
+                else
+                {
+                    // print prop
+                    int offset = nextRow - templateInfo.RowStart - 1;
+                    if (doc.SelectWorksheet(templateInfo.SheetName))
+                    {
+                        // print only if property inside inserted row
+                        int r1, r2;
+                        SLDocument.WhatIsRowStartRowEnd(doc.GetDefinedNameText(subProperty), out r1, out r2);
+                        if (r1 <= templateInfo.RowStart && templateInfo.RowEnd <= r2)
+                        {
+                            SetDefinedNameValue(doc, subProperty, item.Value, offset);
+                        }
+                    }
+                }
+            }
+            // Replace values in brackets, e.g. {Name}
+            int rowStart = nextRow - templateInfo.RowCount;
+            int rowEnd = nextRow - 1;
+            var cells = doc.GetCells().Where(c => c.Key.RowIndex >= rowStart && c.Key.RowIndex <= rowEnd);
 
-        //    foreach (var cell in cells)
-        //    {
-        //        var cellValue = doc.GetCellValueAsString(cell.Key.RowIndex, cell.Key.ColumnIndex);
-        //        var matches = regexReplace.Matches(cellValue);
-        //        if (matches.Count > 0)
-        //        {
-        //            ReplaceValueInBrackets(doc, cell.Key.RowIndex, cell.Key.ColumnIndex, cellValue, data, matches);
-        //        }
-        //    }
-        //}
+            foreach (var cell in cells)
+            {
+                var cellValue = doc.GetCellValueAsString(cell.Key.RowIndex, cell.Key.ColumnIndex);
+                var matches = regexReplace.Matches(cellValue);
+                if (matches.Count > 0)
+                {
+                    ReplaceValueInBrackets(doc, cell.Key.RowIndex, cell.Key.ColumnIndex, cellValue, data, matches);
+                }
+            }
+        }
+
+        private void NormalizeStructure(ArrayPrintStructure structure)
+        {
+            // TODO move header to footer if children started before header (case when no header, just footer).
+
+        }
+
+        private ArrayPrintStructure FillPrintedStructure(ArrayPrintStructure structure, SLDocument doc, string propertyName, JArray jArray)
+        {
+            if (!doc.HasDefinedName(propertyName)) return structure;
+
+
+            var ranges = doc.GetDefinedNameText(propertyName).Split(',');
+            if (!(1 <= ranges.Length && ranges.Length <= 2))
+            {
+                return structure; // TODO: add to log: ranges more than 2, we don't know what todo, add log to new sheet
+            }
+            structure.Enabled = true;
+            structure.Path = propertyName;
+            // Header
+            structure.Header.Enabled = true;
+            structure.Header.Range = ranges[0];
+            if (ranges.Length == 2)
+            {
+                structure.Footer.Enabled = true;
+                structure.Footer.Range = ranges[1];
+            }
+
+            var temp = from r in jArray
+                       select r;
+            // look through all rows to find arrays
+            foreach (var row in jArray)
+            {
+                // look throug all props
+                foreach (var item in (JObject)row)
+                {
+                    if (item.Value.Type == JTokenType.Array)
+                    {
+                        // ! added before
+                        if (!structure.Children.ContainsKey(item.Key))
+                        {
+                            var child = new ArrayPrintStructure();
+                            var subProperty = propertyName + "." + item.Key;
+                            FillPrintedStructure(child, doc, subProperty, (JArray)item.Value);
+                            structure.Children.Add(item.Key, child);
+                        }
+                    }
+                }
+            }
+            return structure;
+        }
+
+
+        /// <summary>
+        /// Dispose method
+        /// </summary>
+        public void Dispose()
+        {
+        }
     }
 
 
