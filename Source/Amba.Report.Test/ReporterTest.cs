@@ -87,24 +87,25 @@ namespace Amba.Report.Test
             reporter.Execute();
 
             // Assert
-            //using (var doc = new SLDocument(tempFile))
-            //{
-            //    doc.SelectWorksheet("Orders");
-            //    Assert.Equal(new DateTime(2015, 03, 22), doc.GetCellValueAsDateTime("B2"));
-            //    Assert.Equal("Example company", doc.GetCellValueAsString("B3"));
-            //    Assert.Equal("Paris", doc.GetCellValueAsString("B4"));
-            //    //Assert.Equal("Report date: 22.03.2015", doc.GetCellValueAsString("A21"));
-            //    //Assert.Equal("Company: Example company", doc.GetCellValueAsString("A22"));
-            //    doc.SelectWorksheet("Page2");
-            //    Assert.Equal(new DateTime(2015, 03, 22), doc.GetCellValueAsDateTime("B2"));
-            //    Assert.Equal("Example company", doc.GetCellValueAsString("B3"));
-            //    Assert.Equal("Paris", doc.GetCellValueAsString("B4"));
-            //    //Assert.Equal("Report date: 22.03.2015", doc.GetCellValueAsString("A21"));
-            //    //Assert.Equal("Company: Example company", doc.GetCellValueAsString("A22"));
-            //}
-            //File.Delete(tempFile);
-            //Assert.False(File.Exists(tempFile));
-            Process.Start(tempFile);
+            using (var doc = new SLDocument(tempFile))
+            {
+                doc.SelectWorksheet("Orders");
+                Assert.Equal(new DateTime(2015, 03, 22), doc.GetCellValueAsDateTime("B2"));
+                Assert.Equal("Example company", doc.GetCellValueAsString("B3"));
+                Assert.Equal("Paris", doc.GetCellValueAsString("B4"));
+                Assert.Equal("Report date: 22.03.2015", doc.GetCellValueAsString("A23"));
+                Assert.Equal("Company: Example company", doc.GetCellValueAsString("A24"));
+                doc.SelectWorksheet("Page2");
+                Assert.Equal(new DateTime(2015, 03, 22), doc.GetCellValueAsDateTime("B2"));
+                Assert.Equal("Example company", doc.GetCellValueAsString("B3"));
+                Assert.Equal("Paris", doc.GetCellValueAsString("B4"));
+                //Assert.Equal("Report date: 22.03.2015", doc.GetCellValueAsString("A21"));
+                //Assert.Equal("Company: Example company", doc.GetCellValueAsString("A22"));
+            }
+            // TODO Make more assertions
+            File.Delete(tempFile);
+            Assert.False(File.Exists(tempFile));
+            //Process.Start(tempFile);
         }
 
         /// <summary>

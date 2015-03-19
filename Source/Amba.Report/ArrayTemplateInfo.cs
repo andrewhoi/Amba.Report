@@ -29,6 +29,7 @@ namespace Amba.Report
         public int Group { get; set; }
         public RowRange RowRange { get; set; }
         public bool IsHeader { get; set; }
+        public string SheetName { get { return RowRange.SheetName; } }
         public override string ToString()
         {
             return String.Format("{0} {1} {2} {3}", Group, RowRange, IsHeader, PropertyName);
@@ -66,21 +67,20 @@ namespace Amba.Report
                 {
                     RowStart = r1;
                     RowEnd = r2;
-                    RowCount = r2 - r1 + 1;
                     SheetName = _Range.Substring(0, _Range.IndexOf('!'));
                 }
                 else
                 {
-                    RowCount = 0;
+                    RowStart = RowEnd = 0;
                     SheetName = String.Empty;
                 }
             }
         }
 
         public string SheetName { get; private set; }
-        public int RowStart { get; private set; }
-        public int RowEnd { get; private set; }
-        public int RowCount { get; private set; }
+        public int RowStart { get; set; }
+        public int RowEnd { get; set; }
+        public int RowCount { get { return RowEnd - RowStart + 1; } }
 
         public override string ToString()
         {
