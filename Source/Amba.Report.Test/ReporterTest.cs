@@ -67,6 +67,34 @@ namespace Amba.Report.Test
 
         #endregion
 
+
+        /// <summary>
+        /// Test printing array and simple values on separate pages
+        /// </summary>
+        [Fact]
+        public void Test3()
+        {
+
+            // Arrange
+            //JObject json = JObject.FromObject(jsonOrders);
+            //var tempFile = GetTempFileName();
+            //var reporter = new SpreadsheetLightJsonReporter(
+            //    "Amba.Report.Test\\Templates\\Orders3.xlsx",
+            //    json,
+            //    tempFile);
+
+            //// Act
+            //reporter.Execute();
+
+            //// Assert
+            //using (var doc = new SLDocument(tempFile))
+            //{
+            //}
+            //File.Delete(tempFile);
+            //Assert.False(File.Exists(tempFile));
+            //Process.Start(tempFile);
+        }
+
         /// <summary>
         /// Test replacement in brackets -- {PropertyName}
         /// </summary>
@@ -88,13 +116,22 @@ namespace Amba.Report.Test
             // Assert
             using (var doc = new SLDocument(tempFile))
             {
+                Assert.Equal("2015-1, Customer: USA Goverment", doc.GetCellValueAsString("A9"));
+                Assert.Equal("2015-2, Customer: John Hock", doc.GetCellValueAsString("A10"));
+                Assert.Equal("2015-3, Customer: Adam Smith", doc.GetCellValueAsString("A11"));
+                Assert.Equal("2015-1, Customer: USA Goverment", doc.GetCellValueAsString("A14"));
+                Assert.Equal("2015-4, Customer: Jeam Bean", doc.GetCellValueAsString("A15"));
+                Assert.Equal("Report date: 22.03.2015", doc.GetCellValueAsString("A21"));
+                Assert.Equal("Company: Example company", doc.GetCellValueAsString("A22"));
             }
-            //File.Delete(tempFile);
-            //Assert.False(File.Exists(tempFile));
-            Process.Start(tempFile);
+            File.Delete(tempFile);
+            Assert.False(File.Exists(tempFile));
+            //Process.Start(tempFile);
         }
 
-
+        /// <summary>
+        /// First test, print nested arrays
+        /// </summary>
         [Fact]
         public void Test1()
         {

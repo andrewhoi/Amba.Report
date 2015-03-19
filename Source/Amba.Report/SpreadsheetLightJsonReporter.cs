@@ -137,20 +137,29 @@ namespace Amba.Report
             {
 
                 string propName = matches[i].ToString();
-                if (propName.Contains(':'))
-                {
-                    propName = propName.Substring(0, propName.IndexOf(':'));
-                }
-                JToken token = TryGetJsonValue(json, propName);
+                string formattedPropName;
+                var propArr = propName.Split(':');
+
+                formattedPropName = String.Format(@"{{{0}}}", propName);
+
+                JToken token = TryGetJsonValue(json, propArr[0]);
                 if (token != null)
                 {
-                    cellValue = cellValue.Replace(propName, i.ToString());
+                    // TODO replacement must use regex instead of this strings
+                    if (propArr.Length == 2)
+                    {
+                        cellValue = cellValue.Replace(formattedPropName, String.Format(@"{{{0}:{1}}}", i, propArr[1]));
+                    }
+                    else
+                    {
+                        cellValue = cellValue.Replace(formattedPropName, String.Format(@"{{{0}}}", i));
+                    }
                     param[i] = token.Value<object>();
                 }
                 else
-                { 
+                {
                     // remove the value
-                    cellValue = cellValue.Replace(String.Format(@"{{{0}}}", propName), "");
+                    cellValue = cellValue.Replace(formattedPropName, "");
                 }
             }
             cellValue = String.Format(cellValue, param);
@@ -315,7 +324,7 @@ namespace Amba.Report
             int rowStart = nextRow - templateInfo.RowCount;
             int rowEnd = nextRow - 1;
             var cells = doc.GetCells().Where(c => c.Key.RowIndex >= rowStart && c.Key.RowIndex <= rowEnd);
-            
+
             foreach (var cell in cells)
             {
                 var cellValue = doc.GetCellValueAsString(cell.Key.RowIndex, cell.Key.ColumnIndex);
@@ -326,7 +335,7 @@ namespace Amba.Report
                 }
             }
         }
-     
+
         private void NormalizeStructure(ArrayPrintStructure structure)
         {
             // TODO move header to footer if children started before header (case when no header, just footer).

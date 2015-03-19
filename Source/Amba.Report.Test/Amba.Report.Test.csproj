@@ -101,6 +101,9 @@
     <Content Include="Amba.Report.Test\Templates\Orders2.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Amba.Report.Test\Templates\Orders3.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
