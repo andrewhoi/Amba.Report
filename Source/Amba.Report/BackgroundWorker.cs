@@ -21,7 +21,9 @@ namespace Amba.Report
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-
+    /// <summary>
+    /// Background worker class
+    /// </summary>
     public class BackgroundWorker : IDisposable
     {
         private Action action;
@@ -29,13 +31,22 @@ namespace Amba.Report
         private CancellationTokenSource tokenSource;
         private readonly string name;
         private Task task;
+
+        /// <summary>
+        /// Initialize instance
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="interval"></param>
+        /// <param name="name"></param>
         public BackgroundWorker(Action action, TimeSpan interval, string name)
         {
             this.action = action;
             this.interval = interval;
             this.name = name;
         }
-
+        /// <summary>
+        /// Start background worker
+        /// </summary>
         public void Start()
         {
 
@@ -53,6 +64,9 @@ namespace Amba.Report
 
             //logger.Info("Background worker with name '{0}' started.", name);
         }
+        /// <summary>
+        /// Stop background worker
+        /// </summary>
         public void Stop()
         {
             tokenSource.Cancel();
@@ -69,7 +83,9 @@ namespace Amba.Report
             }
             //logger.Info("Background worker with name '{0}' stopped.", name);
         }
-
+        /// <summary>
+        /// Dispose
+        /// </summary>
         public void Dispose()
         {
             Stop();
@@ -79,5 +95,5 @@ namespace Amba.Report
     }
 
 
-    
+
 }

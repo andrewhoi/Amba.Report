@@ -22,36 +22,77 @@ namespace Amba.Report
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
-
+    /// <summary>
+    /// Arrat print template
+    /// </summary>
     public class ArrayTemplate
     {
+        /// <summary>
+        /// Property's name
+        /// </summary>
         public string PropertyName { get; set; }
+        /// <summary>
+        /// Group of arrays (inculing nested arrays)
+        /// </summary>
         public int Group { get; set; }
+        /// <summary>
+        /// row range 
+        /// </summary>
         public RowRange RowRange { get; set; }
+        /// <summary>
+        /// Is current range header
+        /// </summary>
         public bool IsHeader { get; set; }
+        /// <summary>
+        /// Excel sheet name
+        /// </summary>
         public string SheetName { get { return RowRange.SheetName; } }
+
+        /// <summary>
+        /// Main view
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return String.Format("{0} {1} {2} {3}", Group, RowRange, IsHeader, PropertyName);
         }
     }
-
+    /// <summary>
+    /// Information about next row position
+    /// </summary>
     public class NextRowInfo
     {
+        /// <summary>
+        /// Sheet name
+        /// </summary>
         public string SheetName { get; set; }
+        /// <summary>
+        /// Group of templates
+        /// </summary>
         public int Group { get; set; }
+        /// <summary>
+        /// next row index (for print next row)
+        /// </summary>
         public int NextRow { get; set; }
     }
-
+    /// <summary>
+    /// Class with row range properties
+    /// </summary>
     public class RowRange
     {
+        /// <summary>
+        /// RowRange class constructor
+        /// </summary>
+        /// <param name="range"></param>
         public RowRange(string range)
         {
             this.Range = range;
         }
 
         private string _Range = String.Empty;
-
+        /// <summary>
+        /// Template range
+        /// </summary>
         public string Range
         {
             get
@@ -76,12 +117,28 @@ namespace Amba.Report
                 }
             }
         }
-
+        /// <summary>
+        /// Sheet name
+        /// </summary>
         public string SheetName { get; private set; }
+        /// <summary>
+        /// First row index
+        /// </summary>
         public int RowStart { get; set; }
+        /// <summary>
+        /// Last row index
+        /// </summary>
         public int RowEnd { get; set; }
+        /// <summary>
+        /// Count of rows
+        /// </summary>
         public int RowCount { get { return RowEnd - RowStart + 1; } }
 
+
+        /// <summary>
+        /// String view
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return String.Format("{0}, rows {1}:{2}", Range, RowStart, RowEnd);

@@ -6,12 +6,12 @@ properties {
 	$framework_version = "v4.5"
 	$output_directory = "$base_directory\Build"
 	$dist_directory = "$base_directory\Distribution"
-	$xunit_path = "$src_directory\packages\xunit.runners.2.0.0-rc3-build2880\tools\xunit.console.exe"
+	$xunit_path = "$src_directory\packages\xunit.runner.console.2.0.0\tools\xunit.console.exe"
 	$nuget_path = "$src_directory\.nuget\nuget.exe"
 	$nl = [Environment]::NewLine
 
 	$buildNumber = 0
-	$version = "0.1.0"
+	$version = "1.0.0"
 	#$preRelease = "alpha"
 	$preRelease = $null
 }
@@ -103,6 +103,9 @@ Task NuGetPackage -depends ILMerge{
 	New-Item $dist_directory\tools -Type Directory | Out-Null
 	Copy-item $src_directory\install.ps1 $dist_directory\tools\
 	Copy-item $src_directory\uninstall.ps1 $dist_directory\tools\
+
+	New-Item $dist_directory\content\Amba.Report -Type Directory | Out-Null
+	Copy-item $output_directory\Amba.Report\* $dist_directory\content\Amba.Report\ -recurse
 
 	Exec { .$nuget_path pack $dist_directory\Amba.Report.nuspec -BasePath $dist_directory -o $dist_directory -version $packageVersion }
 
