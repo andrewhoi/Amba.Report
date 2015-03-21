@@ -32,7 +32,15 @@ namespace Amba.Report.Test
         dynamic jsonOrders = new
         {
             Date = new DateTime(2015, 3, 22),
-            Company = new { Name = "Example company", Address = "Paris" },
+            Company = new
+            {
+                Name = "Example company",
+                Address = "Paris",
+                Contacts = new[] { 
+                    new { Name = "Mr. Smith" },
+                    new { Name = "Mrs. White" }
+                }
+            },
             PrintedAt = new DateTime(2015, 3, 13, 21, 01, 02),
             Categories = new[]{
                 new { 
@@ -67,6 +75,38 @@ namespace Amba.Report.Test
 
         #endregion
 
+
+        /// <summary>
+        /// T
+        /// </summary>
+        [Fact]
+        public void Test4()
+        {
+
+            // Arrange
+            JObject json = JObject.FromObject(jsonOrders);
+            var tempFile = GetTempFileName();
+            var reporter = new SpreadsheetLightJsonReporter(
+                "Amba.Report.Test\\Templates\\Orders4.xlsx",
+                json,
+                tempFile);
+
+            //// Act
+            reporter.Execute();
+
+            // Assert
+            using (var doc = new SLDocument(tempFile))
+            {
+                doc.SelectWorksheet("Orders");
+                //Assert.Equal(new DateTime(2015, 03, 22), doc.GetCellValueAsDateTime("B2"));
+                //Assert.Equal("Example company", doc.GetCellValueAsString("B3"));
+                //Assert.Equal("Paris", doc.GetCellValueAsString("B4"));
+                // TODO Make more assertions, compare with Orders4.TestResult.xlsx
+            }
+            //Process.Start(tempFile);
+            File.Delete(tempFile);
+            Assert.False(File.Exists(tempFile));
+        }
 
         /// <summary>
         /// Test printing array and simple values on separate pages
@@ -114,7 +154,7 @@ namespace Amba.Report.Test
         [Fact]
         public void Test2()
         {
-           
+
             // Arrange
             JObject json = JObject.FromObject(jsonOrders);
             var tempFile = GetTempFileName();

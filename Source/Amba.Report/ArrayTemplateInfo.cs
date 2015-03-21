@@ -84,7 +84,7 @@ namespace Amba.Report
 
         public override string ToString()
         {
-            return Range;
+            return String.Format("{0}, rows {1}:{2}", Range, RowStart, RowEnd);
         }
     }
 }
