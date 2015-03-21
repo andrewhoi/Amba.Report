@@ -122,22 +122,5 @@ namespace Amba.Report.Controllers
             }
         }
 
-        /// <summary>
-        /// Get
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public async Task<IHttpActionResult> Get(string operation = "")
-        {
-            //throw new HttpResponseException(
-            //            Request.CreateResponse<ReadOnlyCollection<ConfigError>>(
-            //                HttpStatusCode.InternalServerError,
-            //                Config.Errors));
-            if (operation.Equals("checkHealth", System.StringComparison.OrdinalIgnoreCase))
-            {
-                return await Task.FromResult(Ok<string>("checkHealth!!!"));
-            }
-            return await Task.FromResult(Ok<string>(String.Format("operation=", operation)));
-        }
     }
 }
